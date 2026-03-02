@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Catálogo de Productos</title>
+  <title>Catálogo de Iluminación</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     body {
@@ -15,9 +15,23 @@
       text-align: center;
       color: #333;
     }
+    /* Estilo para el buscador */
+    .search-container {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    #buscador {
+      width: 100%;
+      max-width: 400px;
+      padding: 12px 20px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      outline: none;
+    }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 20px;
       max-width: 1200px;
       margin: 0 auto;
@@ -29,6 +43,9 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       text-align: center;
       transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .card:hover {
       transform: translateY(-5px);
@@ -40,17 +57,28 @@
       border-radius: 8px;
       background-color: #eee;
     }
+    .ref-text {
+      font-size: 0.75rem;
+      color: #777;
+      margin-top: 10px;
+      font-weight: bold;
+    }
     .card h3 {
-      font-size: 1.1rem;
-      margin: 10px 0;
+      font-size: 1rem;
+      margin: 5px 0 10px;
       color: #222;
-      height: 2.4em; /* Mantiene alineadas las tarjetas */
+      height: 2.4em;
       overflow: hidden;
     }
     .price {
       font-size: 1.2rem;
       font-weight: bold;
       color: #2d2d2d;
+      margin-bottom: 5px;
+    }
+    .stock-text {
+      font-size: 0.85rem;
+      color: #444;
       margin-bottom: 15px;
     }
     .btn {
@@ -62,58 +90,93 @@
       display: block;
       font-weight: bold;
       text-transform: uppercase;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
     }
-    .btn:hover {
-      background: #e6c200;
+    .btn-shopify {
+      background: transparent;
+      color: #008060;
+      border: 1px solid #008060;
+      text-transform: none;
+    }
+    .btn-shopify:hover {
+      background: #f0fdf4;
     }
   </style>
 </head>
 <body>
 
 <h1>Catálogo de Iluminación</h1>
+
+<div class="search-container">
+  <input type="text" id="buscador" placeholder="Buscar por nombre o referencia...">
+</div>
+
 <div class="grid" id="catalogo"></div>
 
 <script>
-// Tu URL de Google Sheets (Publicado como CSV)
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9QD0qdhIfzYUJymEjvB4Q9OO3BFDYqWZpiZMVssAE4nQQYJJZ7Y6Isc_brmSUqqH9CFYlxwxHlGzq/pub?gid=0&single=true&output=csv";
+let productosTotales = [];
+
+function mostrarProductos(productos) {
+  const container = document.getElementById("catalogo");
+  container.innerHTML = "";
+
+  productos.forEach(producto => {
+    // Extraemos los campos usando trim() para evitar el error del "espacio"
+    const nombre = (producto.nombre || producto.Nombre || "").trim();
+    const precio = (producto.precio || producto.Precio || 0);
+    const imagen = (producto.imagen || producto.Imagen || "").trim();
+    const inventario = (producto.inventario || producto.Inventario || 0);
+    const codigo = (producto.codigo || producto.Codigo || "N/A").trim();
+    const linkShopify = (producto.link_shopify || producto.Link_Shopify || "").trim();
+
+    if (parseInt(inventario) > 0 && nombre !== "") {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <div>
+          <img src="${imagen}" alt="${nombre}" onerror="this.src='https://placehold.co/400x400?text=Imagen+No+Encontrada'">
+          <div class="ref-text">REF: ${codigo}</div>
+          <h3>${nombre}</h3>
+          <div class="price">$${Number(precio).toLocaleString('es-CO')}</div>
+          <div class="stock-text">Disponible: <b>${inventario} und</b></div>
+        </div>
+        <div>
+          <a class="btn" target="_blank"
+            href="https://wa.me/573218018059?text=Hola, quiero la REF: ${codigo} - ${encodeURIComponent(nombre)}">
+            Comprar por WhatsApp
+          </a>
+          ${linkShopify ? `<a href="${linkShopify}" class="btn btn-shopify" target="_blank">Ver en Sitio Web</a>` : ''}
+        </div>
+      `;
+      container.appendChild(card);
+    }
+  });
+}
 
 Papa.parse(sheetURL, {
   download: true,
   header: true,
   complete: function(results) {
-    const data = results.data;
-    const container = document.getElementById("catalogo");
-
-    data.forEach(producto => {
-      // Esta parte soluciona el error de "undefined" aceptando Mayúsculas o Minúsculas
-      const nombre = producto.nombre || producto.Nombre || "Sin nombre";
-      const precio = producto.precio || producto.Precio || 0;
-      const imagen = producto.imagen || producto.Imagen || "";
-      const inventario = producto.inventario || producto.Inventario || 0;
-
-      // Solo mostrar si hay inventario
-      if (parseInt(inventario) > 0) {
-        const card = document.createElement("div");
-        card.className = "card";
-
-        card.innerHTML = `
-          <img src="${imagen}" alt="${nombre}" onerror="this.src='https://placehold.co/400x400?text=Imagen+No+Encontrada'">
-          <h3>${nombre}</h3>
-          <div class="price">$${Number(precio).toLocaleString('es-CO')}</div>
-          <a class="btn" target="_blank"
-            href="https://wa.me/573218018059?text=Hola, quiero el producto ${encodeURIComponent(nombre)}">
-            Comprar por WhatsApp
-          </a>
-        `;
-
-        container.appendChild(card);
-      }
-    });
+    productosTotales = results.data;
+    mostrarProductos(productosTotales);
   },
   error: function(err) {
     console.error("Error al cargar el CSV:", err);
   }
+});
+
+// Lógica del buscador
+document.getElementById('buscador').addEventListener('input', (e) => {
+  const termino = e.target.value.toLowerCase();
+  const filtrados = productosTotales.filter(p => {
+    const nom = (p.nombre || p.Nombre || "").toLowerCase();
+    const cod = (p.codigo || p.Codigo || "").toLowerCase();
+    return nom.includes(termino) || cod.includes(termino);
+  });
+  mostrarProductos(filtrados);
 });
 </script>
 
