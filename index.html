@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Catálogo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .price {
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .btn {
+      background: #25D366;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+      text-decoration: none;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Catálogo</h1>
+<div class="grid" id="catalogo"></div>
+
+<script>
+const sheetURL = https://docs.google.com/spreadsheets/d/e/2PACX-1vS9QD0qdhIfzYUJymEjvB4Q9OO3BFDYqWZpiZMVssAE4nQQYJJZ7Y6Isc_brmSUqqH9CFYlxwxHlGzq/pub?gid=0&single=true&output=csv;
+
+Papa.parse(sheetURL, {
+  download: true,
+  header: true,
+  complete: function(results) {
+    const data = results.data;
+    const container = document.getElementById("catalogo");
+
+    data.forEach(producto => {
+      if(producto.inventario > 0) {
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <img src="${producto.imagen}" />
+          <h3>${producto.nombre}</h3>
+          <div class="price">$${Number(producto.precio).toLocaleString()}</div>
+          <a class="btn" target="_blank"
+            href="https://wa.me/573218018059?text=Hola quiero el producto ${producto.nombre}">
+            Comprar
+          </a>
+        `;
+
+        container.appendChild(card);
+      }
+    });
+  }
+});
+</script>
+
+</body>
+</html>
