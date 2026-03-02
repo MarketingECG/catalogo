@@ -1,56 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Catálogo</title>
+  <title>Catálogo de Productos</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     body {
-      font-family: Arial;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f4f4f4;
       padding: 20px;
+      margin: 0;
     }
     h1 {
       text-align: center;
+      color: #333;
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
     .card {
       background: white;
       padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       text-align: center;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
     }
     .card img {
       width: 100%;
-      height: 180px;
+      height: 200px;
       object-fit: cover;
       border-radius: 8px;
+      background-color: #eee;
+    }
+    .card h3 {
+      font-size: 1.1rem;
+      margin: 10px 0;
+      color: #222;
+      height: 2.4em; /* Mantiene alineadas las tarjetas */
+      overflow: hidden;
     }
     .price {
+      font-size: 1.2rem;
       font-weight: bold;
-      margin: 10px 0;
+      color: #2d2d2d;
+      margin-bottom: 15px;
     }
     .btn {
       background: #f7d000;
-      color: #2d2d2d;
-      padding: 8px 12px;
-      border-radius: 5px;
+      color: #000;
+      padding: 10px 15px;
+      border-radius: 6px;
       text-decoration: none;
-      display: inline-block;
+      display: block;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+    .btn:hover {
+      background: #e6c200;
     }
   </style>
 </head>
 <body>
 
-<h1>Catálogo</h1>
+<h1>Catálogo de Iluminación</h1>
 <div class="grid" id="catalogo"></div>
 
 <script>
+// Tu URL de Google Sheets (Publicado como CSV)
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9QD0qdhIfzYUJymEjvB4Q9OO3BFDYqWZpiZMVssAE4nQQYJJZ7Y6Isc_brmSUqqH9CFYlxwxHlGzq/pub?gid=0&single=true&output=csv";
 
 Papa.parse(sheetURL, {
@@ -61,24 +86,33 @@ Papa.parse(sheetURL, {
     const container = document.getElementById("catalogo");
 
     data.forEach(producto => {
-      if(producto.inventario > 0) {
+      // Esta parte soluciona el error de "undefined" aceptando Mayúsculas o Minúsculas
+      const nombre = producto.nombre || producto.Nombre || "Sin nombre";
+      const precio = producto.precio || producto.Precio || 0;
+      const imagen = producto.imagen || producto.Imagen || "";
+      const inventario = producto.inventario || producto.Inventario || 0;
 
+      // Solo mostrar si hay inventario
+      if (parseInt(inventario) > 0) {
         const card = document.createElement("div");
         card.className = "card";
 
         card.innerHTML = `
-          <img src="${producto.imagen}" />
-          <h3>${producto.nombre}</h3>
-          <div class="price">$${Number(producto.precio).toLocaleString()}</div>
+          <img src="${imagen}" alt="${nombre}" onerror="this.src='https://placehold.co/400x400?text=Imagen+No+Encontrada'">
+          <h3>${nombre}</h3>
+          <div class="price">$${Number(precio).toLocaleString('es-CO')}</div>
           <a class="btn" target="_blank"
-            href="https://wa.me/573218018059?text=Hola quiero el producto ${producto.nombre}">
-            Comprar
+            href="https://wa.me/573218018059?text=Hola, quiero el producto ${encodeURIComponent(nombre)}">
+            Comprar por WhatsApp
           </a>
         `;
 
         container.appendChild(card);
       }
     });
+  },
+  error: function(err) {
+    console.error("Error al cargar el CSV:", err);
   }
 });
 </script>
