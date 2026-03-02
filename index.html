@@ -2,105 +2,147 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Catálogo de Iluminación</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Catálogo Iluminación - MarketingECG</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
+    :root {
+      --primary: #f7d000;
+      --shopify: #008060;
+      --bg: #f4f4f4;
+    }
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      padding: 10px;
       margin: 0;
     }
+
     h1 {
       text-align: center;
       color: #333;
+      font-size: 1.8rem;
+      margin: 20px 0;
     }
-    /* Estilo para el buscador */
+
+    /* Buscador Responsive */
     .search-container {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
+      padding: 0 10px;
     }
+
     #buscador {
       width: 100%;
-      max-width: 400px;
-      padding: 12px 20px;
-      border-radius: 25px;
-      border: 1px solid #ccc;
+      max-width: 500px;
+      padding: 14px 25px;
+      border-radius: 30px;
+      border: 1px solid #ddd;
       font-size: 1rem;
       outline: none;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      box-sizing: border-box; /* Evita que se salga de la pantalla */
     }
+
+    /* Grid Adaptativo (Magia Responsive) */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      /* En pantallas pequeñas: 1 columna. En medianas: 2. En grandes: 4+ */
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 20px;
-      max-width: 1200px;
+      max-width: 1300px;
       margin: 0 auto;
+      padding-bottom: 50px;
     }
+
+    /* Ajuste para celulares muy pequeños */
+    @media (max-width: 350px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .card {
       background: white;
       padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
       text-align: center;
-      transition: transform 0.2s;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      transition: transform 0.3s ease;
     }
-    .card:hover {
-      transform: translateY(-5px);
-    }
+
+    .card:active { transform: scale(0.98); } /* Efecto al tocar en celular */
+
     .card img {
       width: 100%;
-      height: 200px;
+      height: 250px; /* Más alto para que se luzca el producto */
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: 12px;
       background-color: #eee;
     }
+
     .ref-text {
-      font-size: 0.75rem;
-      color: #777;
-      margin-top: 10px;
-      font-weight: bold;
+      font-size: 0.7rem;
+      color: #999;
+      margin-top: 12px;
+      letter-spacing: 1px;
     }
+
     .card h3 {
-      font-size: 1rem;
-      margin: 5px 0 10px;
+      font-size: 1.1rem;
+      margin: 8px 0;
       color: #222;
-      height: 2.4em;
-      overflow: hidden;
+      min-height: 2.8em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.3;
     }
+
     .price {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #2d2d2d;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #000;
       margin-bottom: 5px;
     }
+
     .stock-text {
       font-size: 0.85rem;
-      color: #444;
+      color: #666;
       margin-bottom: 15px;
     }
+
+    .stock-text b { color: #2ecc71; }
+
+    /* Botones */
+    .buttons-gap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: auto; /* Empuja los botones al final */
+    }
+
     .btn {
-      background: #f7d000;
-      color: #000;
-      padding: 10px 15px;
-      border-radius: 6px;
+      padding: 12px;
+      border-radius: 10px;
       text-decoration: none;
-      display: block;
       font-weight: bold;
       text-transform: uppercase;
-      font-size: 0.85rem;
-      margin-bottom: 8px;
+      font-size: 0.9rem;
+      display: block;
     }
+
+    .btn-wa {
+      background: var(--primary);
+      color: #000;
+    }
+
     .btn-shopify {
-      background: transparent;
-      color: #008060;
-      border: 1px solid #008060;
-      text-transform: none;
-    }
-    .btn-shopify:hover {
-      background: #f0fdf4;
+      background: #fff;
+      color: var(--shopify);
+      border: 1.5px solid var(--shopify);
     }
   </style>
 </head>
@@ -109,7 +151,7 @@
 <h1>Catálogo de Iluminación</h1>
 
 <div class="search-container">
-  <input type="text" id="buscador" placeholder="Buscar por nombre o referencia...">
+  <input type="text" id="buscador" placeholder="¿Qué buscas hoy? (Nombre o REF)">
 </div>
 
 <div class="grid" id="catalogo"></div>
@@ -122,33 +164,36 @@ function mostrarProductos(productos) {
   const container = document.getElementById("catalogo");
   container.innerHTML = "";
 
-  productos.forEach(producto => {
-    // Extraemos los campos usando trim() para evitar el error del "espacio"
-    const nombre = (producto.nombre || producto.Nombre || "").trim();
-    const precio = (producto.precio || producto.Precio || 0);
-    const imagen = (producto.imagen || producto.Imagen || "").trim();
-    const inventario = (producto.inventario || producto.Inventario || 0);
-    const codigo = (producto.codigo || producto.Codigo || "N/A").trim();
-    const linkShopify = (producto.link_shopify || producto.Link_Shopify || "").trim();
+  productos.forEach(p => {
+    // Función de limpieza de datos mejorada
+    const getVal = (key) => {
+      const foundKey = Object.keys(p).find(k => k.toLowerCase().trim() === key);
+      return p[foundKey] ? String(p[foundKey]).trim() : "";
+    };
+
+    const nombre = getVal('nombre');
+    const precio = getVal('precio');
+    const imagen = getVal('imagen');
+    const inventario = getVal('inventario');
+    const codigo = getVal('codigo');
+    const shopify = getVal('link_shopify');
 
     if (parseInt(inventario) > 0 && nombre !== "") {
       const card = document.createElement("div");
       card.className = "card";
-
       card.innerHTML = `
-        <div>
-          <img src="${imagen}" alt="${nombre}" onerror="this.src='https://placehold.co/400x400?text=Imagen+No+Encontrada'">
-          <div class="ref-text">REF: ${codigo}</div>
-          <h3>${nombre}</h3>
-          <div class="price">$${Number(precio).toLocaleString('es-CO')}</div>
-          <div class="stock-text">Disponible: <b>${inventario} und</b></div>
-        </div>
-        <div>
-          <a class="btn" target="_blank"
-            href="https://wa.me/573218018059?text=Hola, quiero la REF: ${codigo} - ${encodeURIComponent(nombre)}">
-            Comprar por WhatsApp
+        <img src="${imagen}" alt="${nombre}" loading="lazy" onerror="this.src='https://placehold.co/400x400?text=Foto+Proximamente'">
+        <div class="ref-text">REFERENCIA: ${codigo || 'N/A'}</div>
+        <h3>${nombre}</h3>
+        <div class="price">$${Number(precio).toLocaleString('es-CO')}</div>
+        <div class="stock-text">Disponibles: <b>${inventario}</b></div>
+        
+        <div class="buttons-gap">
+          <a class="btn btn-wa" target="_blank"
+            href="https://wa.me/573218018059?text=Hola! Me interesa la REF: ${codigo} (${nombre})">
+            Pedir por WhatsApp
           </a>
-          ${linkShopify ? `<a href="${linkShopify}" class="btn btn-shopify" target="_blank">Ver en Sitio Web</a>` : ''}
+          ${shopify ? `<a href="${shopify}" class="btn btn-shopify" target="_blank">Ver en Web</a>` : ''}
         </div>
       `;
       container.appendChild(card);
@@ -159,24 +204,20 @@ function mostrarProductos(productos) {
 Papa.parse(sheetURL, {
   download: true,
   header: true,
-  complete: function(results) {
+  complete: (results) => {
     productosTotales = results.data;
     mostrarProductos(productosTotales);
-  },
-  error: function(err) {
-    console.error("Error al cargar el CSV:", err);
   }
 });
 
-// Lógica del buscador
 document.getElementById('buscador').addEventListener('input', (e) => {
-  const termino = e.target.value.toLowerCase();
-  const filtrados = productosTotales.filter(p => {
-    const nom = (p.nombre || p.Nombre || "").toLowerCase();
-    const cod = (p.codigo || p.Codigo || "").toLowerCase();
-    return nom.includes(termino) || cod.includes(termino);
+  const term = e.target.value.toLowerCase();
+  const filtered = productosTotales.filter(p => {
+    const n = (p.nombre || "").toLowerCase();
+    const c = (p.codigo || "").toLowerCase();
+    return n.includes(term) || c.includes(term);
   });
-  mostrarProductos(filtrados);
+  mostrarProductos(filtered);
 });
 </script>
 
