@@ -2,13 +2,16 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Catálogo Iluminación - MarketingECG</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>Catálogo Iluminación - MarketingECG</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     :root {
       --primary: #f7d000;
       --shopify: #008060;
       --bg: #f4f4f4;
+      --danger: #e74c3c;
+      --success: #2ecc71;
     }
 
     body {
@@ -25,7 +28,6 @@
       margin: 20px 0;
     }
 
-    /* Buscador Responsive */
     .search-container {
       text-align: center;
       margin-bottom: 25px;
@@ -41,25 +43,16 @@
       font-size: 1rem;
       outline: none;
       box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      box-sizing: border-box; /* Evita que se salga de la pantalla */
+      box-sizing: border-box;
     }
 
-    /* Grid Adaptativo (Magia Responsive) */
     .grid {
       display: grid;
-      /* En pantallas pequeñas: 1 columna. En medianas: 2. En grandes: 4+ */
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 20px;
       max-width: 1300px;
       margin: 0 auto;
       padding-bottom: 50px;
-    }
-
-    /* Ajuste para celulares muy pequeños */
-    @media (max-width: 350px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
     }
 
     .card {
@@ -71,17 +64,40 @@
       display: flex;
       flex-direction: column;
       transition: transform 0.3s ease;
+      position: relative; /* Necesario para el badge */
+      overflow: hidden;
     }
 
-    .card:active { transform: scale(0.98); } /* Efecto al tocar en celular */
+    .card:active { transform: scale(0.98); }
+
+    /* ESTILOS DEL BADGE (EL CARTELITO) */
+    .badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: white;
+      z-index: 5;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .badge-nuevo { background-color: var(--success); }
+    .badge-agotado { background-color: var(--danger); }
+    .badge-nada { display: none; }
 
     .card img {
       width: 100%;
-      height: 250px; /* Más alto para que se luzca el producto */
+      height: 250px;
       object-fit: cover;
       border-radius: 12px;
       background-color: #eee;
     }
+
+    /* Opacidad si está agotado para que se note visualmente */
+    .agotado-img { filter: grayscale(0.6) opacity(0.8); }
 
     .ref-text {
       font-size: 1rem;
@@ -114,14 +130,14 @@
       margin-bottom: 15px;
     }
 
-    .stock-text b { color: #2ecc71; }
+    .stock-text b { color: var(--success); }
+    .stock-out { color: var(--danger) !important; }
 
-    /* Botones */
     .buttons-gap {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-top: auto; /* Empuja los botones al final */
+      margin-top: auto;
     }
 
     .btn {
@@ -164,7 +180,6 @@ function mostrarProductos(productos) {
   container.innerHTML = "";
 
   productos.forEach(p => {
-    // Función de limpieza de datos mejorada
     const getVal = (key) => {
       const foundKey = Object.keys(p).find(k => k.toLowerCase().trim() === key);
       return p[foundKey] ? String(p[foundKey]).trim() : "";
@@ -176,21 +191,44 @@ function mostrarProductos(productos) {
     const inventario = getVal('inventario');
     const codigo = getVal('codigo');
     const shopify = getVal('link_shopify');
+    
+    // NUEVO CAMPO: Asegúrate que en tu Sheet la columna se llame "Estado"
+    const estado = getVal('estado').toLowerCase(); 
 
-    if (parseInt(inventario) > 0 && nombre !== "") {
+    // MODIFICACIÓN: Ahora mostramos si hay inventario O si el estado es "agotado"
+    if (nombre !== "" && (parseInt(inventario) > 0 || estado === 'agotado')) {
+      
+      // Lógica para el mensaje de WhatsApp
+      let msjExtra = "";
+      if (estado === 'agotado') {
+        msjExtra = " (Sé que aparece como AGOTADO, pero quiero consultar disponibilidad)";
+      }
+      const waLink = `https://wa.me/573218018059?text=Hola! Me interesa la REF: ${codigo} (${nombre})${msjExtra}`;
+
       const card = document.createElement("div");
       card.className = "card";
+      
       card.innerHTML = `
-        <img src="${imagen}" alt="${nombre}" loading="lazy" onerror="this.src='https://placehold.co/400x400?text=Foto+Proximamente'">
+        <span class="badge badge-${estado}">${estado}</span>
+        
+        <img src="${imagen}" alt="${nombre}" 
+             class="${estado === 'agotado' ? 'agotado-img' : ''}"
+             loading="lazy" 
+             onerror="this.src='https://placehold.co/400x400?text=Foto+Proximamente'">
+             
         <div class="ref-text">REFERENCIA: ${codigo || 'N/A'}</div>
         <h3>${nombre}</h3>
         <div class="price">$${Number(precio).toLocaleString('es-CO')}</div>
-        <div class="stock-text">Disponibles: <b>${inventario}</b></div>
+        
+        <div class="stock-text">
+          ${estado === 'agotado' 
+            ? '<b class="stock-out">Agotado temporalmente</b>' 
+            : `Disponibles: <b>${inventario}</b>`}
+        </div>
         
         <div class="buttons-gap">
-          <a class="btn btn-wa" target="_blank"
-            href="https://wa.me/573218018059?text=Hola! Me interesa la REF: ${codigo} (${nombre})">
-            Pedir por WhatsApp
+          <a class="btn btn-wa" target="_blank" href="${waLink}">
+            ${estado === 'agotado' ? 'Consultar disponibilidad' : 'Pedir por WhatsApp'}
           </a>
           ${shopify ? `<a href="${shopify}" class="btn btn-shopify" target="_blank">Ver en Web</a>` : ''}
         </div>
