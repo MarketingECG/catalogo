@@ -172,23 +172,23 @@ const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9QD0qdhIfzYU
 let productosTotales = [];
 let categoriaActual = 'todos';
 
+// 1. Extraemos la función getVal para que todo el código la pueda usar
+function getVal(p, key) {
+  const foundKey = Object.keys(p).find(k => k.toLowerCase().trim() === key.toLowerCase());
+  return p[foundKey] ? String(p[foundKey]).trim() : "";
+}
+
 function mostrarProductos(productos) {
   const container = document.getElementById("catalogo");
   container.innerHTML = "";
 
   productos.forEach(p => {
-    const getVal = (key) => {
-      const foundKey = Object.keys(p).find(k => k.toLowerCase().trim() === key);
-      return p[foundKey] ? String(p[foundKey]).trim() : "";
-    };
-
-    const nombre = getVal('nombre');
-    const precio = getVal('precio');
-    const imagen = getVal('imagen');
-    const inventario = getVal('inventario');
-    const codigo = getVal('codigo');
-    const estado = getVal('estado').toLowerCase();
-    const categoriaProd = getVal('categoria').toLowerCase();
+    const nombre = getVal(p, 'nombre');
+    const precio = getVal(p, 'precio');
+    const imagen = getVal(p, 'imagen');
+    const inventario = getVal(p, 'inventario');
+    const codigo = getVal(p, 'codigo');
+    const estado = getVal(p, 'estado').toLowerCase();
 
     // Lógica de visualización
     if (nombre !== "" && (parseInt(inventario) > 0 || estado === 'agotado')) {
@@ -198,8 +198,14 @@ function mostrarProductos(productos) {
 
       const card = document.createElement("div");
       card.className = "card";
+      
+      // 2. Condición añadida para no imprimir un cuadrito vacío si el estado es 'nada'
+      const badgeHTML = (estado !== '' && estado !== 'nada') 
+        ? `<span class="badge badge-${estado}">${estado}</span>` 
+        : '';
+
       card.innerHTML = `
-        <span class="badge badge-${estado}">${estado}</span>
+        ${badgeHTML}
         <img src="${imagen}" class="${estado === 'agotado' ? 'agotado-img' : ''}" onerror="this.src='https://placehold.co/400x400?text=Sin+Foto'">
         <div style="font-size:0.8rem; color:grey; margin-top:10px;">REF: ${codigo}</div>
         <h3>${nombre}</h3>
@@ -217,10 +223,10 @@ function mostrarProductos(productos) {
 function filtrarCategoria(cat) {
   categoriaActual = cat;
   
-  // Actualizar botones UI
+  // 3. Arreglo para que el botón activo cambie exactamente según el click
   document.querySelectorAll('.category-btn').forEach(btn => {
     btn.classList.remove('active');
-    if(btn.textContent.toLowerCase().includes(cat.split('-')[0])) btn.classList.add('active');
+    if(btn.getAttribute('onclick').includes(`'${cat}'`)) btn.classList.add('active');
   });
 
   aplicarFiltros();
@@ -230,9 +236,10 @@ function aplicarFiltros() {
   const termino = document.getElementById('buscador').value.toLowerCase();
   
   const filtrados = productosTotales.filter(p => {
-    const catProd = (p.categoria || "").toLowerCase().trim();
-    const nombreProd = (p.nombre || "").toLowerCase();
-    const codigoProd = (p.codigo || "").toLowerCase();
+    // Ahora aplicarFiltros puede leer la categoría sin fallar
+    const catProd = getVal(p, 'categoria').toLowerCase();
+    const nombreProd = getVal(p, 'nombre').toLowerCase();
+    const codigoProd = getVal(p, 'codigo').toLowerCase();
 
     const coincideCategoria = (categoriaActual === 'todos' || catProd === categoriaActual);
     const coincideBusqueda = nombreProd.includes(termino) || codigoProd.includes(termino);
