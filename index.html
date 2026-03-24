@@ -84,7 +84,7 @@
       z-index: 5;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
-    .badge-nuevo { background-color: #ce000b(--success); }
+    .badge-nuevo { background-color: var(--success); }
     .badge-agotado { background-color: var(--danger); }
     .badge-nada { display: none; }
 
@@ -130,8 +130,8 @@
       margin-bottom: 15px;
     }
 
-    .stock-text b { color: var; }
-    .stock-out { color: var(--danger); }
+    .stock-text b { color: var(--success); }
+    .stock-out { color: var(--danger) !important; }
 
     .buttons-gap {
       display: flex;
