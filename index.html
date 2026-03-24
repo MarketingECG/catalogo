@@ -20,10 +20,10 @@
       background: var(--bg);
       padding: 0;
       margin: 0;
-      padding-top: 170px; /* Aumentado un poco para dar espacio al logo y al menú */
+      padding-top: 180px; /* Espacio para cabecera fija */
     }
 
-    /* MENU RESPONSIVE Y CABECERA */
+    /* CABECERA FIJA */
     .nav-container {
       position: fixed;
       top: 0;
@@ -34,27 +34,35 @@
       z-index: 1000;
     }
 
-    /* CONTENEDOR DEL LOGO */
     .header-logo {
       text-align: center;
       padding: 15px 10px 5px 10px;
     }
 
     .logo-img {
-      max-width: 220px; /* Tamaño ideal para que se lea bien pero no ocupe toda la pantalla */
+      max-width: 200px;
       height: auto;
-      display: inline-block;
     }
 
+    /* MENU RESPONSIVE MEJORADO */
     .menu-categorias {
       display: flex;
-      justify-content: center;
       gap: 10px;
-      padding: 10px;
-      overflow-x: auto; /* Esto es lo que hace que el menú sea deslizable en móviles */
+      padding: 10px 15px;
+      overflow-x: auto; /* Scroll horizontal */
       white-space: nowrap;
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Oculta scroll en Firefox */
     }
+
+    /* Centrar menú en pantallas grandes */
+    @media (min-width: 768px) {
+      .menu-categorias {
+        justify-content: center;
+      }
+    }
+
+    .menu-categorias::-webkit-scrollbar { display: none; } /* Oculta scroll en Chrome/Safari */
 
     .category-btn {
       padding: 8px 18px;
@@ -64,12 +72,8 @@
       cursor: pointer;
       font-weight: 600;
       transition: all 0.3s ease;
-      font-size: 0.9rem;
-    }
-
-    .category-btn:hover {
-      background: var(--primary);
-      transform: translateY(-2px);
+      font-size: 0.85rem;
+      flex-shrink: 0; /* Evita que los botones se achiquen */
     }
 
     .category-btn.active {
@@ -77,11 +81,9 @@
       border-color: var(--dark);
     }
 
-    /* BUSCADOR */
     .search-container {
       text-align: center;
       padding: 5px 10px 15px 10px;
-      background: white;
     }
 
     #buscador {
@@ -103,7 +105,7 @@
       padding: 20px;
     }
 
-    /* CARD Y BADGES */
+    /* CARD */
     .card {
       background: white;
       padding: 15px;
@@ -122,7 +124,7 @@
       right: 15px;
       padding: 5px 12px;
       border-radius: 8px;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 800;
       text-transform: uppercase;
       color: white;
@@ -130,24 +132,41 @@
     }
     .badge-nuevo { background: var(--success); }
     .badge-agotado { background: var(--danger); }
-    .badge-nada { display: none; }
 
     .card img {
       width: 100%;
       height: 250px;
       object-fit: cover;
       border-radius: 12px;
+      background: #f9f9f9;
     }
 
     .agotado-img { filter: grayscale(0.8) opacity(0.6); }
 
-    .price { font-size: 1.4rem; font-weight: 800; margin: 10px 0; }
-    .btn { padding: 12px; border-radius: 10px; text-decoration: none; font-weight: bold; display: block; margin-top: 5px;}
-    .btn-wa { background: var(--primary); color: #000; }
+    .price { font-size: 1.4rem; font-weight: 800; margin: 12px 0; }
+    
+    .buttons-gap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: auto;
+    }
 
-    /* Scrollbar estética para el menú */
-    .menu-categorias::-webkit-scrollbar { height: 4px; }
-    .menu-categorias::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+    .btn {
+      padding: 12px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+    }
+
+    .btn-wa { background: var(--primary); color: #000; }
+    .btn-shopify { 
+      background: #fff; 
+      color: var(--shopify); 
+      border: 1.5px solid var(--shopify); 
+    }
   </style>
 </head>
 <body>
@@ -166,7 +185,7 @@
   </div>
 
   <div class="search-container">
-    <input type="text" id="buscador" placeholder="Buscar en esta categoría...">
+    <input type="text" id="buscador" placeholder="¿Qué buscas hoy?">
   </div>
 </div>
 
@@ -192,11 +211,12 @@ function mostrarProductos(productos) {
     const imagen = getVal(p, 'imagen');
     const inventario = getVal(p, 'inventario');
     const codigo = getVal(p, 'codigo');
+    const shopify = getVal(p, 'link_shopify');
     const estado = getVal(p, 'estado').toLowerCase();
 
     if (nombre !== "" && (parseInt(inventario) > 0 || estado === 'agotado')) {
       
-      let msjExtra = estado === 'agotado' ? " (Agotado, consulto disponibilidad)" : "";
+      let msjExtra = estado === 'agotado' ? " (Sé que está AGOTADO, pero consulto disponibilidad)" : "";
       const waLink = `https://wa.me/573218018059?text=Hola! Me interesa: ${nombre} - REF: ${codigo}${msjExtra}`;
 
       const card = document.createElement("div");
@@ -210,11 +230,15 @@ function mostrarProductos(productos) {
         ${badgeHTML}
         <img src="${imagen}" class="${estado === 'agotado' ? 'agotado-img' : ''}" onerror="this.src='https://placehold.co/400x400?text=Sin+Foto'">
         <div style="font-size:0.8rem; color:grey; margin-top:10px;">REF: ${codigo}</div>
-        <h3>${nombre}</h3>
+        <h3 style="margin:5px 0; font-size:1.1rem;">${nombre}</h3>
         <div class="price">$${Number(precio).toLocaleString('es-CO')}</div>
-        <a class="btn btn-wa" target="_blank" href="${waLink}">
-          ${estado === 'agotado' ? 'Consultar' : 'Pedir WhatsApp'}
-        </a>
+        
+        <div class="buttons-gap">
+          <a class="btn btn-wa" target="_blank" href="${waLink}">
+            ${estado === 'agotado' ? 'Consultar disponibilidad' : 'Pedir por WhatsApp'}
+          </a>
+          ${shopify ? `<a href="${shopify}" class="btn btn-shopify" target="_blank">Ver en Web</a>` : ''}
+        </div>
       `;
       container.appendChild(card);
     }
@@ -223,29 +247,23 @@ function mostrarProductos(productos) {
 
 function filtrarCategoria(cat) {
   categoriaActual = cat;
-  
   document.querySelectorAll('.category-btn').forEach(btn => {
     btn.classList.remove('active');
     if(btn.getAttribute('onclick').includes(`'${cat}'`)) btn.classList.add('active');
   });
-
   aplicarFiltros();
 }
 
 function aplicarFiltros() {
   const termino = document.getElementById('buscador').value.toLowerCase();
-  
   const filtrados = productosTotales.filter(p => {
     const catProd = getVal(p, 'categoria').toLowerCase();
     const nombreProd = getVal(p, 'nombre').toLowerCase();
     const codigoProd = getVal(p, 'codigo').toLowerCase();
-
     const coincideCategoria = (categoriaActual === 'todos' || catProd === categoriaActual);
     const coincideBusqueda = nombreProd.includes(termino) || codigoProd.includes(termino);
-    
     return coincideCategoria && coincideBusqueda;
   });
-
   mostrarProductos(filtrados);
 }
 
@@ -259,7 +277,6 @@ Papa.parse(sheetURL, {
 });
 
 document.getElementById('buscador').addEventListener('input', aplicarFiltros);
-
 </script>
 </body>
 </html>
