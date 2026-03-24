@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <title>Catálogo Iluminación - MarketingECG</title>
+  <title>Catálogo Multi-Categoría - MarketingECG</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     :root {
@@ -12,49 +12,93 @@
       --bg: #f4f4f4;
       --danger: #e74c3c;
       --success: #2ecc71;
+      --dark: #222;
     }
 
     body {
       font-family: 'Poppins', sans-serif;
       background: var(--bg);
-      padding: 10px;
+      padding: 0;
       margin: 0;
+      padding-top: 140px; /* Espacio para el menú fijo */
     }
 
-    h1 {
+    /* MENU RESPONSIVE */
+    .nav-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+
+    header h1 {
+      margin: 10px 0;
+      font-size: 1.4rem;
       text-align: center;
-      color: #333;
-      font-size: 1.8rem;
-      margin: 20px 0;
+      color: var(--dark);
     }
 
+    .menu-categorias {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px;
+      overflow-x: auto; /* Scroll horizontal en móviles */
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .category-btn {
+      padding: 8px 18px;
+      border: 2px solid transparent;
+      border-radius: 20px;
+      background: #eee;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .category-btn:hover {
+      background: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .category-btn.active {
+      background: var(--primary);
+      border-color: var(--dark);
+    }
+
+    /* BUSCADOR */
     .search-container {
       text-align: center;
-      margin-bottom: 25px;
-      padding: 0 10px;
+      padding: 10px;
+      background: white;
     }
 
     #buscador {
-      width: 100%;
-      max-width: 500px;
-      padding: 14px 25px;
-      border-radius: 30px;
+      width: 90%;
+      max-width: 400px;
+      padding: 10px 20px;
+      border-radius: 25px;
       border: 1px solid #ddd;
-      font-size: 1rem;
       outline: none;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      box-sizing: border-box;
     }
 
+    /* GRID */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 20px;
       max-width: 1300px;
       margin: 0 auto;
-      padding-bottom: 50px;
+      padding: 20px;
     }
 
+    /* CARD Y BADGES (Tu lógica anterior) */
     .card {
       background: white;
       padding: 15px;
@@ -63,14 +107,10 @@
       text-align: center;
       display: flex;
       flex-direction: column;
-      transition: transform 0.3s ease;
-      position: relative; /* Necesario para el badge */
+      position: relative;
       overflow: hidden;
     }
 
-    .card:active { transform: scale(0.98); }
-
-    /* ESTILOS DEL BADGE (EL CARTELITO) */
     .badge {
       position: absolute;
       top: 15px;
@@ -82,10 +122,9 @@
       text-transform: uppercase;
       color: white;
       z-index: 5;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
-    .badge-nuevo { background-color: var(--success); }
-    .badge-agotado { background-color: var(--danger); }
+    .badge-nuevo { background: var(--success); }
+    .badge-agotado { background: var(--danger); }
     .badge-nada { display: none; }
 
     .card img {
@@ -93,80 +132,37 @@
       height: 250px;
       object-fit: cover;
       border-radius: 12px;
-      background-color: #eee;
     }
 
-    /* Opacidad si está agotado para que se note visualmente */
-    .agotado-img { filter: grayscale(0.6) opacity(0.8); }
+    .agotado-img { filter: grayscale(0.8) opacity(0.6); }
 
-    .ref-text {
-      font-size: 1rem;
-      color: #2d2d2d;
-      margin-top: 12px;
-      letter-spacing: 0.7px;
-    }
+    .price { font-size: 1.4rem; font-weight: 800; margin: 10px 0; }
+    .btn { padding: 12px; border-radius: 10px; text-decoration: none; font-weight: bold; display: block; margin-top: 5px;}
+    .btn-wa { background: var(--primary); color: #000; }
 
-    .card h3 {
-      font-size: 1.1rem;
-      margin: 8px 0;
-      color: #222;
-      min-height: 2.8em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1.3;
-    }
-
-    .price {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #000;
-      margin-bottom: 5px;
-    }
-
-    .stock-text {
-      font-size: 0.85rem;
-      color: #666;
-      margin-bottom: 15px;
-    }
-
-    .stock-text b { color: var(--success); }
-    .stock-out { color: var(--danger) !important; }
-
-    .buttons-gap {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: auto;
-    }
-
-    .btn {
-      padding: 12px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: bold;
-      text-transform: uppercase;
-      font-size: 0.9rem;
-      display: block;
-    }
-
-    .btn-wa {
-      background: var(--primary);
-      color: #000;
-    }
-    .btn-shopify {
-      background: #fff;
-      color: var(--shopify);
-      border: 1.5px solid var(--shopify);
-    }
+    /* Scrollbar estética para el menú */
+    .menu-categorias::-webkit-scrollbar { height: 4px; }
+    .menu-categorias::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
   </style>
 </head>
 <body>
 
-<h1>Catálogo de Iluminación</h1>
+<div class="nav-container">
+  <header>
+    <h1>Catálogo MarketingECG</h1>
+  </header>
+  
+  <div class="menu-categorias">
+    <button class="category-btn active" onclick="filtrarCategoria('todos')">Todos</button>
+    <button class="category-btn" onclick="filtrarCategoria('iluminacion')">Iluminación</button>
+    <button class="category-btn" onclick="filtrarCategoria('termoencogible')">Termoencogible</button>
+    <button class="category-btn" onclick="filtrarCategoria('equipos-herramientas')">Equipos</button>
+    <button class="category-btn" onclick="filtrarCategoria('electronica')">Electrónica</button>
+  </div>
 
-<div class="search-container">
-  <input type="text" id="buscador" placeholder="¿Qué buscas hoy? (Nombre o Referencia)">
+  <div class="search-container">
+    <input type="text" id="buscador" placeholder="Buscar en esta categoría...">
+  </div>
 </div>
 
 <div class="grid" id="catalogo"></div>
@@ -174,6 +170,7 @@
 <script>
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9QD0qdhIfzYUJymEjvB4Q9OO3BFDYqWZpiZMVssAE4nQQYJJZ7Y6Isc_brmSUqqH9CFYlxwxHlGzq/pub?gid=0&single=true&output=csv";
 let productosTotales = [];
+let categoriaActual = 'todos';
 
 function mostrarProductos(productos) {
   const container = document.getElementById("catalogo");
@@ -190,52 +187,60 @@ function mostrarProductos(productos) {
     const imagen = getVal('imagen');
     const inventario = getVal('inventario');
     const codigo = getVal('codigo');
-    const shopify = getVal('link_shopify');
-    
-    // NUEVO CAMPO: Asegúrate que en tu Sheet la columna se llame "Estado"
-    const estado = getVal('estado').toLowerCase(); 
+    const estado = getVal('estado').toLowerCase();
+    const categoriaProd = getVal('categoria').toLowerCase();
 
-    // MODIFICACIÓN: Ahora mostramos si hay inventario O si el estado es "agotado"
+    // Lógica de visualización
     if (nombre !== "" && (parseInt(inventario) > 0 || estado === 'agotado')) {
       
-      // Lógica para el mensaje de WhatsApp
-      let msjExtra = "";
-      if (estado === 'agotado') {
-        msjExtra = " (Sé que aparece como AGOTADO, pero quiero consultar disponibilidad)";
-      }
-      const waLink = `https://wa.me/573218018059?text=Hola! Me interesa la REF: ${codigo} (${nombre})${msjExtra}`;
+      let msjExtra = estado === 'agotado' ? " (Agotado, consulto disponibilidad)" : "";
+      const waLink = `https://wa.me/573218018059?text=Hola! Me interesa: ${nombre} - REF: ${codigo}${msjExtra}`;
 
       const card = document.createElement("div");
       card.className = "card";
-      
       card.innerHTML = `
         <span class="badge badge-${estado}">${estado}</span>
-        
-        <img src="${imagen}" alt="${nombre}" 
-             class="${estado === 'agotado' ? 'agotado-img' : ''}"
-             loading="lazy" 
-             onerror="this.src='https://placehold.co/400x400?text=Foto+Proximamente'">
-             
-        <div class="ref-text">REFERENCIA: ${codigo || 'N/A'}</div>
+        <img src="${imagen}" class="${estado === 'agotado' ? 'agotado-img' : ''}" onerror="this.src='https://placehold.co/400x400?text=Sin+Foto'">
+        <div style="font-size:0.8rem; color:grey; margin-top:10px;">REF: ${codigo}</div>
         <h3>${nombre}</h3>
         <div class="price">$${Number(precio).toLocaleString('es-CO')}</div>
-        
-        <div class="stock-text">
-          ${estado === 'agotado' 
-            ? '<b class="stock-out">Agotado temporalmente</b>' 
-            : `Disponibles: <b>${inventario}</b>`}
-        </div>
-        
-        <div class="buttons-gap">
-          <a class="btn btn-wa" target="_blank" href="${waLink}">
-            ${estado === 'agotado' ? 'Consultar disponibilidad' : 'Pedir por WhatsApp'}
-          </a>
-          ${shopify ? `<a href="${shopify}" class="btn btn-shopify" target="_blank">Ver en Web</a>` : ''}
-        </div>
+        <a class="btn btn-wa" target="_blank" href="${waLink}">
+          ${estado === 'agotado' ? 'Consultar' : 'Pedir WhatsApp'}
+        </a>
       `;
       container.appendChild(card);
     }
   });
+}
+
+// FUNCIÓN DE FILTRADO POR MENÚ
+function filtrarCategoria(cat) {
+  categoriaActual = cat;
+  
+  // Actualizar botones UI
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if(btn.textContent.toLowerCase().includes(cat.split('-')[0])) btn.classList.add('active');
+  });
+
+  aplicarFiltros();
+}
+
+function aplicarFiltros() {
+  const termino = document.getElementById('buscador').value.toLowerCase();
+  
+  const filtrados = productosTotales.filter(p => {
+    const catProd = (p.categoria || "").toLowerCase().trim();
+    const nombreProd = (p.nombre || "").toLowerCase();
+    const codigoProd = (p.codigo || "").toLowerCase();
+
+    const coincideCategoria = (categoriaActual === 'todos' || catProd === categoriaActual);
+    const coincideBusqueda = nombreProd.includes(termino) || codigoProd.includes(termino);
+    
+    return coincideCategoria && coincideBusqueda;
+  });
+
+  mostrarProductos(filtrados);
 }
 
 Papa.parse(sheetURL, {
@@ -247,16 +252,8 @@ Papa.parse(sheetURL, {
   }
 });
 
-document.getElementById('buscador').addEventListener('input', (e) => {
-  const term = e.target.value.toLowerCase();
-  const filtered = productosTotales.filter(p => {
-    const n = (p.nombre || "").toLowerCase();
-    const c = (p.codigo || "").toLowerCase();
-    return n.includes(term) || c.includes(term);
-  });
-  mostrarProductos(filtered);
-});
-</script>
+document.getElementById('buscador').addEventListener('input', aplicarFiltros);
 
+</script>
 </body>
 </html>
