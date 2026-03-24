@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <title>Catálogo Multi-Categoría - MarketingECG</title>
+  <title>Catálogo Multi-Categoría - TUVOLTIO</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     :root {
@@ -20,10 +20,10 @@
       background: var(--bg);
       padding: 0;
       margin: 0;
-      padding-top: 140px; /* Espacio para el menú fijo */
+      padding-top: 170px; /* Aumentado un poco para dar espacio al logo y al menú */
     }
 
-    /* MENU RESPONSIVE */
+    /* MENU RESPONSIVE Y CABECERA */
     .nav-container {
       position: fixed;
       top: 0;
@@ -34,11 +34,16 @@
       z-index: 1000;
     }
 
-    header h1 {
-      margin: 10px 0;
-      font-size: 1.4rem;
+    /* CONTENEDOR DEL LOGO */
+    .header-logo {
       text-align: center;
-      color: var(--dark);
+      padding: 15px 10px 5px 10px;
+    }
+
+    .logo-img {
+      max-width: 220px; /* Tamaño ideal para que se lea bien pero no ocupe toda la pantalla */
+      height: auto;
+      display: inline-block;
     }
 
     .menu-categorias {
@@ -46,7 +51,7 @@
       justify-content: center;
       gap: 10px;
       padding: 10px;
-      overflow-x: auto; /* Scroll horizontal en móviles */
+      overflow-x: auto; /* Esto es lo que hace que el menú sea deslizable en móviles */
       white-space: nowrap;
       -webkit-overflow-scrolling: touch;
     }
@@ -75,7 +80,7 @@
     /* BUSCADOR */
     .search-container {
       text-align: center;
-      padding: 10px;
+      padding: 5px 10px 15px 10px;
       background: white;
     }
 
@@ -98,7 +103,7 @@
       padding: 20px;
     }
 
-    /* CARD Y BADGES (Tu lógica anterior) */
+    /* CARD Y BADGES */
     .card {
       background: white;
       padding: 15px;
@@ -148,9 +153,9 @@
 <body>
 
 <div class="nav-container">
-  <header>
-    <h1>Catálogo MarketingECG</h1>
-  </header>
+  <div class="header-logo">
+    <img src="Recurso 3.png" alt="TUVOLTIO" class="logo-img">
+  </div>
   
   <div class="menu-categorias">
     <button class="category-btn active" onclick="filtrarCategoria('todos')">Todos</button>
@@ -172,7 +177,6 @@ const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9QD0qdhIfzYU
 let productosTotales = [];
 let categoriaActual = 'todos';
 
-// 1. Extraemos la función getVal para que todo el código la pueda usar
 function getVal(p, key) {
   const foundKey = Object.keys(p).find(k => k.toLowerCase().trim() === key.toLowerCase());
   return p[foundKey] ? String(p[foundKey]).trim() : "";
@@ -190,7 +194,6 @@ function mostrarProductos(productos) {
     const codigo = getVal(p, 'codigo');
     const estado = getVal(p, 'estado').toLowerCase();
 
-    // Lógica de visualización
     if (nombre !== "" && (parseInt(inventario) > 0 || estado === 'agotado')) {
       
       let msjExtra = estado === 'agotado' ? " (Agotado, consulto disponibilidad)" : "";
@@ -199,7 +202,6 @@ function mostrarProductos(productos) {
       const card = document.createElement("div");
       card.className = "card";
       
-      // 2. Condición añadida para no imprimir un cuadrito vacío si el estado es 'nada'
       const badgeHTML = (estado !== '' && estado !== 'nada') 
         ? `<span class="badge badge-${estado}">${estado}</span>` 
         : '';
@@ -219,11 +221,9 @@ function mostrarProductos(productos) {
   });
 }
 
-// FUNCIÓN DE FILTRADO POR MENÚ
 function filtrarCategoria(cat) {
   categoriaActual = cat;
   
-  // 3. Arreglo para que el botón activo cambie exactamente según el click
   document.querySelectorAll('.category-btn').forEach(btn => {
     btn.classList.remove('active');
     if(btn.getAttribute('onclick').includes(`'${cat}'`)) btn.classList.add('active');
@@ -236,7 +236,6 @@ function aplicarFiltros() {
   const termino = document.getElementById('buscador').value.toLowerCase();
   
   const filtrados = productosTotales.filter(p => {
-    // Ahora aplicarFiltros puede leer la categoría sin fallar
     const catProd = getVal(p, 'categoria').toLowerCase();
     const nombreProd = getVal(p, 'nombre').toLowerCase();
     const codigoProd = getVal(p, 'codigo').toLowerCase();
