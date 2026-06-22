@@ -153,14 +153,17 @@
 
     .card-img-wrap {
       position: relative;
-      background: #f7f6f3;
+      background: #ffffff;
     }
 
     .card img {
       width: 100%;
-      height: 180px;
-      object-fit: cover;
+      height: 190px;
+      object-fit: contain;
+      object-position: center;
       display: block;
+      background: #ffffff;
+      padding: 10px;
     }
 
     .agotado-img { filter: grayscale(0.85) opacity(0.55); }
@@ -228,6 +231,13 @@
       align-items: center;
       gap: 6px;
     }
+    .stock-count {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
     .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
     .dot-ok { background: var(--success); }
     .dot-no { background: var(--danger); }
@@ -269,13 +279,16 @@
 
     .modal-header-img {
       position: relative;
-      background: var(--ink);
+      background: #ffffff;
     }
     .modal-header-img img {
       width: 100%;
-      height: 240px;
-      object-fit: cover;
+      height: 230px;
+      object-fit: contain;
+      object-position: center;
       display: block;
+      background: #ffffff;
+      padding: 16px;
     }
     .modal-close {
       position: absolute;
@@ -397,10 +410,12 @@
     .complement-item img {
       width: 108px;
       height: 92px;
-      object-fit: cover;
+      object-fit: contain;
+      object-position: center;
       border-radius: 10px;
       border: 1px solid var(--line);
-      background: var(--bg);
+      background: #ffffff;
+      padding: 6px;
     }
     .complement-item .comp-name {
       font-size: 0.72rem;
@@ -489,6 +504,10 @@ let categoriaActual = 'todos';
 // Cambialo si en tu hoja le pusiste otro nombre (ej: "fuentes-alimentacion").
 const CATEGORIA_FUENTES = 'fuentes';
 
+// Nombre de la categoría que usás en el Sheet para accesorios universales
+// (cortadores, conectores, pegantes...). Se muestran para cualquier cinta/módulo.
+const CATEGORIA_ACCESORIOS = 'accesorios';
+
 function getVal(p, key) {
   const foundKey = Object.keys(p).find(k => k.toLowerCase().trim() === key.toLowerCase());
   return p[foundKey] ? String(p[foundKey]).trim() : "";
@@ -516,6 +535,7 @@ function mostrarProductos(productos) {
     const codigo = getVal(p, 'codigo');
     const estado = getVal(p, 'estado').toLowerCase();
     const voltaje = getVal(p, 'voltaje').toLowerCase();
+    const subcategoria = getVal(p, 'subcategoria');
 
     if (nombre !== "" && (parseInt(inventario) > 0 || estado === 'agotado')) {
       visibles++;
@@ -538,11 +558,12 @@ function mostrarProductos(productos) {
           <img src="${imagen}" class="${estado === 'agotado' ? 'agotado-img' : ''}" onerror="this.src='https://placehold.co/400x400?text=Sin+Foto'">
         </div>
         <div class="card-body">
-          <div class="card-ref">REF: ${codigo}</div>
+          <div class="card-ref">REF: ${codigo}${subcategoria ? ' · ' + subcategoria.toUpperCase() : ''}</div>
           <h3 class="card-title">${nombre}</h3>
           <div class="card-status">
             <span class="dot ${disponible ? 'dot-ok' : 'dot-no'}"></span>
             <span class="${disponible ? 'status-ok' : 'status-no'}">${disponible ? 'Disponible' : 'Agotado'}</span>
+            ${disponible && inventario ? `<span class="stock-count">${inventario} unid.</span>` : ''}
           </div>
         </div>
       `;
@@ -581,8 +602,8 @@ function abrirModal(codigo) {
   const estado = getVal(p, 'estado').toLowerCase();
   const voltaje = getVal(p, 'voltaje').toLowerCase();
   const categoria = getVal(p, 'categoria').toLowerCase();
+  const subcategoria = getVal(p, 'subcategoria');
   const shopify = getVal(p, 'link_shopify');
-  const accesoriosRefs = getVal(p, 'accesorios_ref');
   const disponible = estado !== 'agotado';
 
   document.getElementById('modalImg').src = imagen;
@@ -593,9 +614,12 @@ function abrirModal(codigo) {
   // Specs (estado + voltaje)
   const specs = document.getElementById('modalSpecs');
   specs.innerHTML = '';
-  specs.innerHTML += `<span class="spec-chip ${disponible ? 'status-ok-chip' : 'status-no-chip'}">${disponible ? '● Disponible' : '● Agotado'}</span>`;
+  specs.innerHTML += `<span class="spec-chip ${disponible ? 'status-ok-chip' : 'status-no-chip'}">${disponible ? '● Disponible' : '● Agotado'}${disponible && inventario ? ' · ' + inventario + ' unid.' : ''}</span>`;
   if (voltaje) {
     specs.innerHTML += `<span class="spec-chip volt">⚡ ${voltaje.toUpperCase()}</span>`;
+  }
+  if (subcategoria) {
+    specs.innerHTML += `<span class="spec-chip">${subcategoria.toUpperCase()}</span>`;
   }
 
   // Acciones
@@ -628,15 +652,20 @@ function abrirModal(codigo) {
     fuentesSection.style.display = 'none';
   }
 
-  // Accesorios compatibles (manual por refs)
+  // Accesorios compatibles (automático: cualquier producto de categoría "accesorios"
+  // se muestra para cualquier cinta/módulo de iluminación)
   const accesoriosRow = document.getElementById('accesoriosRow');
   accesoriosRow.innerHTML = '';
   const accesoriosSection = accesoriosRow.parentElement.parentElement;
-  if (accesoriosRefs) {
-    const refs = accesoriosRefs.split(',').map(r => r.trim()).filter(Boolean);
-    const productosAcc = refs.map(r => buscarPorCodigo(r)).filter(Boolean);
-    if (productosAcc.length > 0) {
-      productosAcc.forEach(a => accesoriosRow.appendChild(renderComplementCard(a)));
+  if (categoria === 'iluminacion') {
+    const accesorios = productosTotales.filter(prod => {
+      const catP = getVal(prod, 'categoria').toLowerCase();
+      const invP = getVal(prod, 'inventario');
+      const estP = getVal(prod, 'estado').toLowerCase();
+      return catP === CATEGORIA_ACCESORIOS && (parseInt(invP) > 0 || estP === 'agotado');
+    });
+    if (accesorios.length > 0) {
+      accesorios.forEach(a => accesoriosRow.appendChild(renderComplementCard(a)));
       accesoriosSection.style.display = '';
     } else {
       accesoriosSection.style.display = 'none';
