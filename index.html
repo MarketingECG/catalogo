@@ -2,170 +2,431 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catálogo Multi-Categoría - TUVOLTIO</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #f7d000;
+      --primary-dark: #c9a800;
+      --ink: #15171c;
+      --ink-soft: #20232b;
+      --bg: #f3f2ee;
+      --card: #ffffff;
+      --line: #e3e1da;
+      --muted: #767a85;
+      --danger: #e1483f;
+      --success: #2bb673;
+      --volt: #29d39a;
+      --volt-soft: #e3faf0;
       --shopify: #008060;
-      --bg: #f4f4f4;
-      --danger: #e74c3c;
-      --success: #2ecc71;
-      --dark: #222;
+
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
     }
 
+    * { box-sizing: border-box; }
+
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--font-body);
       background: var(--bg);
       padding: 0;
       margin: 0;
-      padding-top: 180px; /* Espacio para cabecera fija */
+      padding-top: 172px;
+      color: var(--ink);
     }
 
-    /* CABECERA FIJA */
+    /* ===== CABECERA FIJA ===== */
     .nav-container {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      background: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      background: var(--card);
+      box-shadow: 0 1px 0 var(--line), 0 8px 24px rgba(20,20,20,0.06);
       z-index: 1000;
     }
 
     .header-logo {
       text-align: center;
-      padding: 15px 10px 5px 10px;
+      padding: 14px 10px 2px 10px;
     }
 
     .logo-img {
-      max-width: 300px;
+      max-width: 260px;
       height: auto;
     }
 
-    /* MENU RESPONSIVE MEJORADO */
     .menu-categorias {
       display: flex;
-      gap: 10px;
-      padding: 10px 15px;
-      overflow-x: auto; /* Scroll horizontal */
+      gap: 8px;
+      padding: 12px 16px 8px;
+      overflow-x: auto;
       white-space: nowrap;
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: none; /* Oculta scroll en Firefox */
+      scrollbar-width: none;
     }
 
-    /* Centrar menú en pantallas grandes */
     @media (min-width: 768px) {
-      .menu-categorias {
-        justify-content: center;
-      }
+      .menu-categorias { justify-content: center; }
     }
 
-    .menu-categorias::-webkit-scrollbar { display: none; } /* Oculta scroll en Chrome/Safari */
+    .menu-categorias::-webkit-scrollbar { display: none; }
 
     .category-btn {
-      padding: 8px 18px;
-      border: 2px solid transparent;
-      border-radius: 20px;
-      background: #eee;
+      padding: 8px 16px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      background: var(--card);
       cursor: pointer;
+      font-family: var(--font-display);
       font-weight: 600;
-      transition: all 0.3s ease;
-      font-size: 1rem;
-      flex-shrink: 0; /* Evita que los botones se achiquen */
+      font-size: 0.85rem;
+      letter-spacing: 0.01em;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      color: var(--ink);
     }
 
     .category-btn.active {
-      background: var(--primary);
-      border-color: var(--dark);
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--primary);
     }
 
     .search-container {
       text-align: center;
-      padding: 5px 10px 15px 10px;
+      padding: 4px 16px 14px;
     }
 
     #buscador {
       width: 90%;
-      max-width: 400px;
-      padding: 10px 20px;
-      border-radius: 25px;
-      border: 1px solid #ddd;
+      max-width: 420px;
+      padding: 11px 18px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
       outline: none;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      background: var(--bg);
     }
+    #buscador:focus { border-color: var(--ink); background: var(--card); }
 
-    /* GRID */
+    /* ===== GRID ===== */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 16px;
       max-width: 1300px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 18px 20px 60px;
     }
 
-    /* CARD */
-    .card {
-      background: white;
-      padding: 15px;
-      border-radius: 16px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    .empty-state {
+      grid-column: 1 / -1;
       text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-family: var(--font-display);
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      text-align: left;
       display: flex;
       flex-direction: column;
       position: relative;
-      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(20,20,20,0.1);
+    }
+
+    .card-img-wrap {
+      position: relative;
+      background: #f7f6f3;
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .agotado-img { filter: grayscale(0.85) opacity(0.55); }
 
     .badge {
       position: absolute;
-      top: 15px;
-      right: 15px;
-      padding: 5px 12px;
-      border-radius: 8px;
-      font-size: 0.7rem;
-      font-weight: 800;
+      top: 10px;
+      right: 10px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.65rem;
+      font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.04em;
       color: white;
       z-index: 5;
+      font-family: var(--font-display);
     }
     .badge-nuevo { background: var(--success); }
     .badge-agotado { background: var(--danger); }
 
-    .card img {
-      width: 100%;
-      height: 250px;
-      object-fit: cover;
-      border-radius: 12px;
-      background: #f9f9f9;
+    .volt-tag {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: var(--ink);
+      color: var(--volt);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 6px;
+      letter-spacing: 0.02em;
     }
 
-    .agotado-img { filter: grayscale(0.8) opacity(0.6); }
-
-    .price { font-size: 1.4rem; font-weight: 800; margin: 12px 0; }
-    
-    .buttons-gap {
+    .card-body {
+      padding: 12px 14px 14px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: auto;
+      gap: 6px;
+      flex: 1;
     }
 
+    .card-ref {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .card-status {
+      margin-top: auto;
+      padding-top: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .dot-ok { background: var(--success); }
+    .dot-no { background: var(--danger); }
+    .status-ok { color: var(--success); }
+    .status-no { color: var(--danger); }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,16,20,0.6);
+      z-index: 2000;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    @media (min-width: 768px) {
+      .modal-overlay { align-items: center; }
+    }
+
+    .modal-box {
+      background: var(--card);
+      width: 100%;
+      max-width: 560px;
+      max-height: 92vh;
+      overflow-y: auto;
+      border-radius: 20px 20px 0 0;
+      animation: slideUp 0.25s ease;
+    }
+    @media (min-width: 768px) {
+      .modal-box { border-radius: 20px; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header-img {
+      position: relative;
+      background: var(--ink);
+    }
+    .modal-header-img img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+    }
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-body);
+    }
+
+    .modal-content { padding: 20px 22px 26px; }
+
+    .modal-ref {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 4px 0 12px;
+      line-height: 1.2;
+    }
+
+    .spec-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .spec-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .spec-chip.volt {
+      background: var(--volt-soft);
+      border-color: var(--volt);
+      color: #0a7a55;
+      font-family: var(--font-mono);
+    }
+    .spec-chip.status-ok-chip { color: var(--success); }
+    .spec-chip.status-no-chip { color: var(--danger); }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
     .btn {
-      padding: 12px;
+      padding: 13px;
       border-radius: 10px;
       text-decoration: none;
-      font-weight: bold;
+      font-weight: 700;
       text-transform: uppercase;
-      font-size: 0.85rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      text-align: center;
+      flex: 1;
+      font-family: var(--font-display);
+      border: none;
+      cursor: pointer;
+    }
+    .btn-wa { background: var(--primary); color: var(--ink); }
+    .btn-shopify { background: #fff; color: var(--shopify); border: 1.5px solid var(--shopify); }
+
+    /* Diagrama de conexión */
+    .connect-section { margin-bottom: 22px; }
+    .connect-label {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .connect-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--line);
     }
 
-    .btn-wa { background: var(--primary); color: #000; }
-    .btn-shopify { 
-      background: #fff; 
-      color: var(--shopify); 
-      border: 1.5px solid var(--shopify); 
+    .complement-row {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: thin;
+    }
+
+    .complement-item {
+      flex-shrink: 0;
+      width: 108px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .complement-item img {
+      width: 108px;
+      height: 92px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+    }
+    .complement-item .comp-name {
+      font-size: 0.72rem;
+      font-weight: 600;
+      margin-top: 5px;
+      line-height: 1.25;
+    }
+    .complement-item .comp-ref {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--muted);
+    }
+
+    .no-complements {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* Mini diagrama SVG conexión */
+    .diagram-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 6px;
     }
   </style>
 </head>
@@ -175,7 +436,7 @@
   <div class="header-logo">
     <img src="Recurso 3.png" alt="TUVOLTIO" class="logo-img">
   </div>
-  
+
   <div class="menu-categorias">
     <button class="category-btn active" onclick="filtrarCategoria('todos')">Todos</button>
     <button class="category-btn" onclick="filtrarCategoria('iluminacion')">Iluminación</button>
@@ -191,58 +452,210 @@
 
 <div class="grid" id="catalogo"></div>
 
+<!-- MODAL DETALLE + COMPLEMENTARIOS -->
+<div class="modal-overlay" id="modalOverlay" onclick="cerrarModalSiFondo(event)">
+  <div class="modal-box">
+    <div class="modal-header-img">
+      <img id="modalImg" src="" alt="">
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+    </div>
+    <div class="modal-content">
+      <div class="modal-ref" id="modalRef"></div>
+      <h2 class="modal-title" id="modalTitle"></h2>
+
+      <div class="spec-row" id="modalSpecs"></div>
+
+      <div class="modal-actions" id="modalActions"></div>
+
+      <div class="connect-section">
+        <div class="connect-label">Fuente recomendada</div>
+        <div class="complement-row" id="fuentesRow"></div>
+      </div>
+
+      <div class="connect-section">
+        <div class="connect-label">Accesorios compatibles</div>
+        <div class="complement-row" id="accesoriosRow"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9QD0qdhIfzYUJymEjvB4Q9OO3BFDYqWZpiZMVssAE4nQQYJJZ7Y6Isc_brmSUqqH9CFYlxwxHlGzq/pub?gid=0&single=true&output=csv";
 let productosTotales = [];
 let categoriaActual = 'todos';
+
+// Nombre de la categoría que usás en el Sheet para las fuentes de alimentación.
+// Cambialo si en tu hoja le pusiste otro nombre (ej: "fuentes-alimentacion").
+const CATEGORIA_FUENTES = 'fuentes';
 
 function getVal(p, key) {
   const foundKey = Object.keys(p).find(k => k.toLowerCase().trim() === key.toLowerCase());
   return p[foundKey] ? String(p[foundKey]).trim() : "";
 }
 
+function buildWaLink(nombre, codigo, estado) {
+  let msjExtra = estado === 'agotado' ? " (Sé que está AGOTADO, pero consulto disponibilidad)" : "";
+  return `https://wa.me/573218018059?text=Hola! Me interesa: ${nombre} - REF: ${codigo}${msjExtra}`;
+}
+
+function buscarPorCodigo(codigo) {
+  return productosTotales.find(p => getVal(p, 'codigo').toLowerCase() === codigo.toLowerCase());
+}
+
 function mostrarProductos(productos) {
   const container = document.getElementById("catalogo");
   container.innerHTML = "";
 
+  let visibles = 0;
+
   productos.forEach(p => {
     const nombre = getVal(p, 'nombre');
-    const precio = getVal(p, 'precio');
     const imagen = getVal(p, 'imagen');
     const inventario = getVal(p, 'inventario');
     const codigo = getVal(p, 'codigo');
-    const shopify = getVal(p, 'link_shopify');
     const estado = getVal(p, 'estado').toLowerCase();
+    const voltaje = getVal(p, 'voltaje').toLowerCase();
 
     if (nombre !== "" && (parseInt(inventario) > 0 || estado === 'agotado')) {
-      
-      let msjExtra = estado === 'agotado' ? " (Sé que está AGOTADO, pero consulto disponibilidad)" : "";
-      const waLink = `https://wa.me/573218018059?text=Hola! Me interesa: ${nombre} - REF: ${codigo}${msjExtra}`;
+      visibles++;
+      const disponible = estado !== 'agotado';
 
       const card = document.createElement("div");
       card.className = "card";
-      
-      const badgeHTML = (estado !== '' && estado !== 'nada') 
-        ? `<span class="badge badge-${estado}">${estado}</span>` 
+      card.onclick = () => abrirModal(codigo);
+
+      const badgeHTML = (estado === 'nuevo' || estado === 'agotado')
+        ? `<span class="badge badge-${estado}">${estado}</span>`
         : '';
 
+      const voltTagHTML = voltaje ? `<span class="volt-tag">${voltaje.toUpperCase()}</span>` : '';
+
       card.innerHTML = `
-        ${badgeHTML}
-        <img src="${imagen}" class="${estado === 'agotado' ? 'agotado-img' : ''}" onerror="this.src='https://placehold.co/400x400?text=Sin+Foto'">
-        <div style="font-size:0.8rem; color:grey; margin-top:10px;">REF: ${codigo}</div>
-        <h3 style="margin:5px 0; font-size:1.1rem;">${nombre}</h3>
-        <div class="price">$${Number(precio).toLocaleString('es-CO')}</div>
-        
-        <div class="buttons-gap">
-          <a class="btn btn-wa" target="_blank" href="${waLink}">
-            ${estado === 'agotado' ? 'Consultar disponibilidad' : 'Pedir por WhatsApp'}
-          </a>
-          ${shopify ? `<a href="${shopify}" class="btn btn-shopify" target="_blank">Ver en Web</a>` : ''}
+        <div class="card-img-wrap">
+          ${badgeHTML}
+          ${voltTagHTML}
+          <img src="${imagen}" class="${estado === 'agotado' ? 'agotado-img' : ''}" onerror="this.src='https://placehold.co/400x400?text=Sin+Foto'">
+        </div>
+        <div class="card-body">
+          <div class="card-ref">REF: ${codigo}</div>
+          <h3 class="card-title">${nombre}</h3>
+          <div class="card-status">
+            <span class="dot ${disponible ? 'dot-ok' : 'dot-no'}"></span>
+            <span class="${disponible ? 'status-ok' : 'status-no'}">${disponible ? 'Disponible' : 'Agotado'}</span>
+          </div>
         </div>
       `;
       container.appendChild(card);
     }
   });
+
+  if (visibles === 0) {
+    container.innerHTML = `<div class="empty-state">No encontramos productos con ese criterio.</div>`;
+  }
+}
+
+function renderComplementCard(p) {
+  const nombre = getVal(p, 'nombre');
+  const imagen = getVal(p, 'imagen');
+  const codigo = getVal(p, 'codigo');
+
+  const div = document.createElement('div');
+  div.className = 'complement-item';
+  div.onclick = (e) => { e.stopPropagation(); abrirModal(codigo); };
+  div.innerHTML = `
+    <img src="${imagen}" onerror="this.src='https://placehold.co/200x200?text=Sin+Foto'">
+    <div class="comp-name">${nombre}</div>
+    <div class="comp-ref">REF: ${codigo}</div>
+  `;
+  return div;
+}
+
+function abrirModal(codigo) {
+  const p = buscarPorCodigo(codigo);
+  if (!p) return;
+
+  const nombre = getVal(p, 'nombre');
+  const imagen = getVal(p, 'imagen');
+  const inventario = getVal(p, 'inventario');
+  const estado = getVal(p, 'estado').toLowerCase();
+  const voltaje = getVal(p, 'voltaje').toLowerCase();
+  const categoria = getVal(p, 'categoria').toLowerCase();
+  const shopify = getVal(p, 'link_shopify');
+  const accesoriosRefs = getVal(p, 'accesorios_ref');
+  const disponible = estado !== 'agotado';
+
+  document.getElementById('modalImg').src = imagen;
+  document.getElementById('modalImg').onerror = function(){ this.src='https://placehold.co/600x400?text=Sin+Foto'; };
+  document.getElementById('modalRef').textContent = `REF: ${getVal(p, 'codigo')}`;
+  document.getElementById('modalTitle').textContent = nombre;
+
+  // Specs (estado + voltaje)
+  const specs = document.getElementById('modalSpecs');
+  specs.innerHTML = '';
+  specs.innerHTML += `<span class="spec-chip ${disponible ? 'status-ok-chip' : 'status-no-chip'}">${disponible ? '● Disponible' : '● Agotado'}</span>`;
+  if (voltaje) {
+    specs.innerHTML += `<span class="spec-chip volt">⚡ ${voltaje.toUpperCase()}</span>`;
+  }
+
+  // Acciones
+  const actions = document.getElementById('modalActions');
+  const waLink = buildWaLink(nombre, getVal(p, 'codigo'), estado);
+  actions.innerHTML = `
+    <a class="btn btn-wa" target="_blank" href="${waLink}">${disponible ? 'Pedir por WhatsApp' : 'Consultar disponibilidad'}</a>
+    ${shopify ? `<a href="${shopify}" class="btn btn-shopify" target="_blank">Ver en Web</a>` : ''}
+  `;
+
+  // Fuentes recomendadas por voltaje (automático)
+  const fuentesRow = document.getElementById('fuentesRow');
+  fuentesRow.innerHTML = '';
+  const fuentesSection = fuentesRow.parentElement.parentElement; // .connect-section
+  if (voltaje) {
+    const fuentes = productosTotales.filter(prod => {
+      const catP = getVal(prod, 'categoria').toLowerCase();
+      const voltP = getVal(prod, 'voltaje').toLowerCase();
+      const invP = getVal(prod, 'inventario');
+      const estP = getVal(prod, 'estado').toLowerCase();
+      return catP === CATEGORIA_FUENTES && voltP === voltaje && (parseInt(invP) > 0 || estP === 'agotado');
+    });
+    if (fuentes.length > 0) {
+      fuentes.forEach(f => fuentesRow.appendChild(renderComplementCard(f)));
+      fuentesSection.style.display = '';
+    } else {
+      fuentesSection.style.display = 'none';
+    }
+  } else {
+    fuentesSection.style.display = 'none';
+  }
+
+  // Accesorios compatibles (manual por refs)
+  const accesoriosRow = document.getElementById('accesoriosRow');
+  accesoriosRow.innerHTML = '';
+  const accesoriosSection = accesoriosRow.parentElement.parentElement;
+  if (accesoriosRefs) {
+    const refs = accesoriosRefs.split(',').map(r => r.trim()).filter(Boolean);
+    const productosAcc = refs.map(r => buscarPorCodigo(r)).filter(Boolean);
+    if (productosAcc.length > 0) {
+      productosAcc.forEach(a => accesoriosRow.appendChild(renderComplementCard(a)));
+      accesoriosSection.style.display = '';
+    } else {
+      accesoriosSection.style.display = 'none';
+    }
+  } else {
+    accesoriosSection.style.display = 'none';
+  }
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function cerrarModalSiFondo(e) {
+  if (e.target.id === 'modalOverlay') cerrarModal();
 }
 
 function filtrarCategoria(cat) {
@@ -277,6 +690,7 @@ Papa.parse(sheetURL, {
 });
 
 document.getElementById('buscador').addEventListener('input', aplicarFiltros);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarModal(); });
 </script>
 </body>
 </html>
