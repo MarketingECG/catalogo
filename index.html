@@ -504,8 +504,8 @@ let categoriaActual = 'todos';
 // Cambialo si en tu hoja le pusiste otro nombre (ej: "fuentes-alimentacion").
 const CATEGORIA_FUENTES = 'fuentes';
 
-// Nombre de la categoría que usás en el Sheet para accesorios universales
-// (cortadores, conectores, pegantes...). Se muestran para cualquier cinta/módulo.
+// Nombre de la categoría que usás en el Sheet para accesorios
+// (cortadores, conectores, pegantes...).
 const CATEGORIA_ACCESORIOS = 'accesorios';
 
 function getVal(p, key) {
@@ -526,9 +526,21 @@ function mostrarProductos(productos) {
   const container = document.getElementById("catalogo");
   container.innerHTML = "";
 
+  // Orden: disponibles primero (de mayor a menor inventario), agotados al final
+  const ordenados = [...productos].sort((a, b) => {
+    const estadoA = getVal(a, 'estado').toLowerCase();
+    const estadoB = getVal(b, 'estado').toLowerCase();
+    const agotadoA = estadoA === 'agotado' ? 1 : 0;
+    const agotadoB = estadoB === 'agotado' ? 1 : 0;
+    if (agotadoA !== agotadoB) return agotadoA - agotadoB; // agotados (1) van después
+    const invA = parseInt(getVal(a, 'inventario')) || 0;
+    const invB = parseInt(getVal(b, 'inventario')) || 0;
+    return invB - invA; // mayor inventario primero
+  });
+
   let visibles = 0;
 
-  productos.forEach(p => {
+  ordenados.forEach(p => {
     const nombre = getVal(p, 'nombre');
     const imagen = getVal(p, 'imagen');
     const inventario = getVal(p, 'inventario');
@@ -652,17 +664,19 @@ function abrirModal(codigo) {
     fuentesSection.style.display = 'none';
   }
 
-  // Accesorios compatibles (automático: cualquier producto de categoría "accesorios"
-  // se muestra para cualquier cinta/módulo de iluminación)
+  // Accesorios compatibles: se buscan los productos de categoría "accesorios"
+  // cuyo campo "aplica_a" incluya la subcategoría de este producto
   const accesoriosRow = document.getElementById('accesoriosRow');
   accesoriosRow.innerHTML = '';
   const accesoriosSection = accesoriosRow.parentElement.parentElement;
-  if (categoria === 'iluminacion') {
+  if (categoria === 'iluminacion' && subcategoria) {
     const accesorios = productosTotales.filter(prod => {
       const catP = getVal(prod, 'categoria').toLowerCase();
       const invP = getVal(prod, 'inventario');
       const estP = getVal(prod, 'estado').toLowerCase();
-      return catP === CATEGORIA_ACCESORIOS && (parseInt(invP) > 0 || estP === 'agotado');
+      const aplicaA = getVal(prod, 'aplica_a').toLowerCase().split(',').map(s => s.trim());
+      const enStock = parseInt(invP) > 0 || estP === 'agotado';
+      return catP === CATEGORIA_ACCESORIOS && enStock && aplicaA.includes(subcategoria.toLowerCase());
     });
     if (accesorios.length > 0) {
       accesorios.forEach(a => accesoriosRow.appendChild(renderComplementCard(a)));
