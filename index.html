@@ -611,6 +611,7 @@ function abrirModal(codigo) {
   const inventario = getVal(p, 'inventario');
   const estado = getVal(p, 'estado').toLowerCase();
   const voltaje = getVal(p, 'voltaje').toLowerCase();
+  const fuenteRecomendada = getVal(p, 'fuente_recomendada');
   const categoria = getVal(p, 'categoria').toLowerCase();
   const subcategoria = getVal(p, 'subcategoria');
   const shopify = getVal(p, 'link_shopify');
@@ -640,18 +641,44 @@ function abrirModal(codigo) {
     ${shopify ? `<a href="${shopify}" class="btn btn-shopify" target="_blank">Ver en Web</a>` : ''}
   `;
 
-  // Fuentes recomendadas por voltaje (automático)
+  // Fuentes recomendadas: el campo fuente_recomendada puede traer voltajes (12v),
+  // códigos de producto (REF020) o una mezcla separada por comas (12v,REF033)
   const fuentesRow = document.getElementById('fuentesRow');
   fuentesRow.innerHTML = '';
   const fuentesSection = fuentesRow.parentElement.parentElement; // .connect-section
-  if (voltaje) {
-    const fuentes = ordenarAgotadosAlFinal(productosTotales.filter(prod => {
-      const catP = getVal(prod, 'categoria').toLowerCase();
-      const voltP = getVal(prod, 'voltaje').toLowerCase();
-      const invP = getVal(prod, 'inventario');
-      const estP = getVal(prod, 'estado').toLowerCase();
-      return catP === CATEGORIA_FUENTES && voltP === voltaje && (parseInt(invP) > 0 || estP === 'agotado');
-    }));
+  if (fuenteRecomendada) {
+    const valores = fuenteRecomendada.split(',').map(v => v.trim()).filter(Boolean);
+    const esVoltaje = (v) => /^\d+v$/i.test(v);
+
+    let fuentesEncontradas = [];
+    valores.forEach(valor => {
+      if (esVoltaje(valor)) {
+        // Buscar todas las fuentes con ese voltaje
+        const porVoltaje = productosTotales.filter(prod => {
+          const catP = getVal(prod, 'categoria').toLowerCase();
+          const voltP = getVal(prod, 'voltaje').toLowerCase();
+          const invP = getVal(prod, 'inventario');
+          const estP = getVal(prod, 'estado').toLowerCase();
+          return catP === CATEGORIA_FUENTES && voltP === valor.toLowerCase() && (parseInt(invP) > 0 || estP === 'agotado');
+        });
+        fuentesEncontradas.push(...porVoltaje);
+      } else {
+        // Tratarlo como código específico
+        const porCodigo = buscarPorCodigo(valor);
+        if (porCodigo) fuentesEncontradas.push(porCodigo);
+      }
+    });
+
+    // Quitar duplicados (por si un código y un voltaje apuntan al mismo producto)
+    const vistos = new Set();
+    fuentesEncontradas = fuentesEncontradas.filter(f => {
+      const cod = getVal(f, 'codigo');
+      if (vistos.has(cod)) return false;
+      vistos.add(cod);
+      return true;
+    });
+
+    const fuentes = ordenarAgotadosAlFinal(fuentesEncontradas);
     if (fuentes.length > 0) {
       fuentes.forEach(f => fuentesRow.appendChild(renderComplementCard(f)));
       fuentesSection.style.display = '';
