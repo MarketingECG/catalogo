@@ -645,7 +645,7 @@ function abrirModal(codigo) {
   // códigos de producto (REF020) o una mezcla separada por comas (12v,REF033)
   const fuentesRow = document.getElementById('fuentesRow');
   fuentesRow.innerHTML = '';
-  const fuentesSection = fuentesRow.parentElement.parentElement; // .connect-section
+  const fuentesSection = fuentesRow.parentElement; // .connect-section
   if (fuenteRecomendada) {
     const valores = fuenteRecomendada.split(',').map(v => v.trim()).filter(Boolean);
     const esVoltaje = (v) => /^\d+v$/i.test(v);
@@ -693,7 +693,7 @@ function abrirModal(codigo) {
   // cuyo campo "aplica_a" incluya la subcategoría de este producto
   const accesoriosRow = document.getElementById('accesoriosRow');
   accesoriosRow.innerHTML = '';
-  const accesoriosSection = accesoriosRow.parentElement.parentElement;
+  const accesoriosSection = accesoriosRow.parentElement;
   if (categoria === 'iluminacion' && subcategoria) {
     const accesorios = ordenarAgotadosAlFinal(productosTotales.filter(prod => {
       const catP = getVal(prod, 'categoria').toLowerCase();
