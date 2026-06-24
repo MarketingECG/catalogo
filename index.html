@@ -372,7 +372,7 @@
     .btn-wa { background: var(--primary); color: var(--ink); }
     .btn-shopify { background: #fff; color: var(--shopify); border: 1.5px solid var(--shopify); }
 
-    /* Diagrama de conexión */
+    /* Complementarios */
     .connect-section { margin-bottom: 22px; }
     .connect-label {
       font-family: var(--font-display);
@@ -428,21 +428,6 @@
       font-family: var(--font-mono);
       color: var(--muted);
     }
-
-    .no-complements {
-      font-size: 0.82rem;
-      color: var(--muted);
-      font-style: italic;
-    }
-
-    /* Mini diagrama SVG conexión */
-    .diagram-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      margin-bottom: 6px;
-    }
   </style>
 </head>
 <body>
@@ -482,12 +467,12 @@
 
       <div class="modal-actions" id="modalActions"></div>
 
-      <div class="connect-section">
+      <div class="connect-section" id="fuentesSection">
         <div class="connect-label">Fuente recomendada</div>
         <div class="complement-row" id="fuentesRow"></div>
       </div>
 
-      <div class="connect-section">
+      <div class="connect-section" id="accesoriosSection">
         <div class="connect-label">Accesorios compatibles</div>
         <div class="complement-row" id="accesoriosRow"></div>
       </div>
@@ -501,12 +486,7 @@ let productosTotales = [];
 let categoriaActual = 'todos';
 
 // Nombre de la categoría que usás en el Sheet para las fuentes de alimentación.
-// Cambialo si en tu hoja le pusiste otro nombre (ej: "fuentes-alimentacion").
 const CATEGORIA_FUENTES = 'fuentes';
-
-// Nombre de la categoría que usás en el Sheet para accesorios
-// (cortadores, conectores, pegantes...).
-const CATEGORIA_ACCESORIOS = 'accesorios';
 
 function getVal(p, key) {
   const foundKey = Object.keys(p).find(k => k.toLowerCase().trim() === key.toLowerCase());
@@ -522,8 +502,6 @@ function buscarPorCodigo(codigo) {
   return productosTotales.find(p => getVal(p, 'codigo').toLowerCase() === codigo.toLowerCase());
 }
 
-// Ordena una lista de productos dejando los agotados al final (usado solo dentro del modal,
-// el grid principal NO se reordena y respeta el orden del Sheet).
 function ordenarAgotadosAlFinal(lista) {
   return [...lista].sort((a, b) => {
     const agotadoA = getVal(a, 'estado').toLowerCase() === 'agotado' ? 1 : 0;
@@ -611,7 +589,6 @@ function abrirModal(codigo) {
   const inventario = getVal(p, 'inventario');
   const estado = getVal(p, 'estado').toLowerCase();
   const voltaje = getVal(p, 'voltaje').toLowerCase();
-  const fuenteRecomendada = getVal(p, 'fuente_recomendada');
   const categoria = getVal(p, 'categoria').toLowerCase();
   const subcategoria = getVal(p, 'subcategoria');
   const shopify = getVal(p, 'link_shopify');
@@ -622,7 +599,7 @@ function abrirModal(codigo) {
   document.getElementById('modalRef').textContent = `REF: ${getVal(p, 'codigo')}`;
   document.getElementById('modalTitle').textContent = nombre;
 
-  // Specs (estado + voltaje)
+  // Specs (estado + voltaje + subcategoria)
   const specs = document.getElementById('modalSpecs');
   specs.innerHTML = '';
   specs.innerHTML += `<span class="spec-chip ${disponible ? 'status-ok-chip' : 'status-no-chip'}">${disponible ? '● Disponible' : '● Agotado'}${disponible && inventario ? ' · ' + inventario + ' unid.' : ''}</span>`;
@@ -641,44 +618,18 @@ function abrirModal(codigo) {
     ${shopify ? `<a href="${shopify}" class="btn btn-shopify" target="_blank">Ver en Web</a>` : ''}
   `;
 
-  // Fuentes recomendadas: el campo fuente_recomendada puede traer voltajes (12v),
-  // códigos de producto (REF020) o una mezcla separada por comas (12v,REF033)
+  // Fuentes recomendadas por voltaje (automático, cruce simple)
   const fuentesRow = document.getElementById('fuentesRow');
+  const fuentesSection = document.getElementById('fuentesSection');
   fuentesRow.innerHTML = '';
-  const fuentesSection = fuentesRow.parentElement; // .connect-section
-  if (fuenteRecomendada) {
-    const valores = fuenteRecomendada.split(',').map(v => v.trim()).filter(Boolean);
-    const esVoltaje = (v) => /^\d+v$/i.test(v);
-
-    let fuentesEncontradas = [];
-    valores.forEach(valor => {
-      if (esVoltaje(valor)) {
-        // Buscar todas las fuentes con ese voltaje
-        const porVoltaje = productosTotales.filter(prod => {
-          const catP = getVal(prod, 'categoria').toLowerCase();
-          const voltP = getVal(prod, 'voltaje').toLowerCase();
-          const invP = getVal(prod, 'inventario');
-          const estP = getVal(prod, 'estado').toLowerCase();
-          return catP === CATEGORIA_FUENTES && voltP === valor.toLowerCase() && (parseInt(invP) > 0 || estP === 'agotado');
-        });
-        fuentesEncontradas.push(...porVoltaje);
-      } else {
-        // Tratarlo como código específico
-        const porCodigo = buscarPorCodigo(valor);
-        if (porCodigo) fuentesEncontradas.push(porCodigo);
-      }
-    });
-
-    // Quitar duplicados (por si un código y un voltaje apuntan al mismo producto)
-    const vistos = new Set();
-    fuentesEncontradas = fuentesEncontradas.filter(f => {
-      const cod = getVal(f, 'codigo');
-      if (vistos.has(cod)) return false;
-      vistos.add(cod);
-      return true;
-    });
-
-    const fuentes = ordenarAgotadosAlFinal(fuentesEncontradas);
+  if (voltaje) {
+    const fuentes = ordenarAgotadosAlFinal(productosTotales.filter(prod => {
+      const catP = getVal(prod, 'categoria').toLowerCase();
+      const voltP = getVal(prod, 'voltaje').toLowerCase();
+      const invP = getVal(prod, 'inventario');
+      const estP = getVal(prod, 'estado').toLowerCase();
+      return catP === CATEGORIA_FUENTES && voltP === voltaje && (parseInt(invP) > 0 || estP === 'agotado');
+    }));
     if (fuentes.length > 0) {
       fuentes.forEach(f => fuentesRow.appendChild(renderComplementCard(f)));
       fuentesSection.style.display = '';
@@ -689,11 +640,11 @@ function abrirModal(codigo) {
     fuentesSection.style.display = 'none';
   }
 
-  // Accesorios compatibles: se buscan los productos de categoría "accesorios"
-  // cuyo campo "aplica_a" incluya la subcategoría de este producto
+  // Accesorios compatibles: productos categoria=accesorios cuyo "aplica_a" incluya
+  // la subcategoria de este producto
   const accesoriosRow = document.getElementById('accesoriosRow');
+  const accesoriosSection = document.getElementById('accesoriosSection');
   accesoriosRow.innerHTML = '';
-  const accesoriosSection = accesoriosRow.parentElement;
   if (categoria === 'iluminacion' && subcategoria) {
     const accesorios = ordenarAgotadosAlFinal(productosTotales.filter(prod => {
       const catP = getVal(prod, 'categoria').toLowerCase();
@@ -701,7 +652,7 @@ function abrirModal(codigo) {
       const estP = getVal(prod, 'estado').toLowerCase();
       const aplicaA = getVal(prod, 'aplica_a').toLowerCase().split(',').map(s => s.trim());
       const enStock = parseInt(invP) > 0 || estP === 'agotado';
-      return catP === CATEGORIA_ACCESORIOS && enStock && aplicaA.includes(subcategoria.toLowerCase());
+      return catP === 'accesorios' && enStock && aplicaA.includes(subcategoria.toLowerCase());
     }));
     if (accesorios.length > 0) {
       accesorios.forEach(a => accesoriosRow.appendChild(renderComplementCard(a)));
