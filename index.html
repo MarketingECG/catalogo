@@ -1101,7 +1101,7 @@ function _renderTarjetaResultado(producto, puntaje) {
     const inventario = getVal(p, 'inventario');
     const estado = _normalizar(getVal(p, 'estado'));
     const enStock = parseInt(inventario) > 0 || estado === 'agotado';
-    return categoria === 'equipos-herramientas' && subcategoria === 'multimetro' && enStock;
+    return categoria === 'equipos-herramientas' && subcategoria === 'multimetros' && enStock;
   }
 
   registrarConfigRecomendador('multimetros', {
@@ -1351,7 +1351,7 @@ function _actualizarVisibilidadBotonRecomendador() {
   const btn = document.getElementById('recTriggerBtn');
   if (!btn) return;
   const hayMultimetros = categoriaActual === 'equipos-herramientas' &&
-    productosTotales.some(p => getVal(p, 'subcategoria').toLowerCase() === 'multimetro');
+    productosTotales.some(p => getVal(p, 'subcategoria').toLowerCase() === 'multimetros');
   btn.style.display = hayMultimetros ? '' : 'none';
 }
 
