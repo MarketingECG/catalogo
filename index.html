@@ -428,7 +428,240 @@
       font-family: var(--font-mono);
       color: var(--muted);
     }
-    estilos-recomendador.css
+
+    /* ============================================================
+       ESTILOS DEL ASESOR DE RECOMENDACIÓN (wizard) — AGREGADO
+       ============================================================ */
+    .rec-trigger-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: calc(100% - 40px);
+      max-width: 1260px;
+      margin: 0 auto 16px;
+      padding: 13px 18px;
+      background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%);
+      color: var(--primary);
+      border: none;
+      border-radius: 12px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.92rem;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(20,20,20,0.18);
+    }
+    .rec-trigger-btn:hover { transform: translateY(-1px); }
+    .rec-trigger-btn .rec-trigger-icon { font-size: 1.1rem; }
+
+    .rec-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,16,20,0.6);
+      z-index: 2100;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .rec-overlay.open { display: flex; }
+    @media (min-width: 768px) {
+      .rec-overlay { align-items: center; }
+    }
+
+    .rec-box {
+      background: var(--card);
+      width: 100%;
+      max-width: 600px;
+      max-height: 92vh;
+      overflow-y: auto;
+      border-radius: 20px 20px 0 0;
+      animation: slideUp 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 768px) {
+      .rec-box { border-radius: 20px; }
+    }
+
+    .rec-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 18px 20px 10px;
+    }
+    .rec-eyebrow {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary-dark);
+    }
+    .rec-progress-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .rec-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .rec-progress-track {
+      height: 4px;
+      background: var(--line);
+      margin: 0 20px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .rec-progress-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+
+    .rec-body { padding: 20px 20px 24px; }
+
+    .rec-question {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 4px 0 6px;
+      line-height: 1.3;
+    }
+    .rec-subtext {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .rec-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .rec-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      padding: 14px 16px;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      background: var(--bg);
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--ink);
+      transition: all 0.15s ease;
+    }
+    .rec-option:hover { border-color: var(--ink); }
+    .rec-option-active {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .rec-option-icon { font-size: 1.15rem; }
+
+    .rec-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 22px;
+      gap: 10px;
+    }
+    .rec-btn {
+      padding: 12px 18px;
+      border-radius: 10px;
+      border: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+    }
+    .rec-btn-next { background: var(--primary); color: var(--ink); margin-left: auto; }
+    .rec-btn-back { background: transparent; color: var(--muted); }
+    .rec-btn-restart { background: var(--bg); color: var(--ink); border: 1.5px solid var(--line); }
+
+    .rec-result-intro {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .rec-results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .rec-card {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.15s ease;
+    }
+    .rec-card:hover { transform: translateY(-2px); }
+
+    .rec-card-match {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: var(--volt);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      z-index: 5;
+    }
+
+    .rec-card-img-wrap { position: relative; background: #fff; }
+    .rec-card-img-wrap img {
+      width: 100%;
+      height: 110px;
+      object-fit: contain;
+      background: #fff;
+      padding: 8px;
+      display: block;
+    }
+
+    .rec-card-body { padding: 8px 10px 12px; }
+    .rec-card-ref {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--muted);
+    }
+    .rec-card-title {
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.25;
+      margin-top: 2px;
+    }
+
+    .rec-empty {
+      text-align: center;
+      padding: 20px 10px;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
@@ -450,13 +683,15 @@
     <input type="text" id="buscador" placeholder="¿Qué buscas hoy?">
   </div>
 </div>
-  
+
+<!-- BOTÓN DEL ASESOR DE RECOMENDACIÓN — AGREGADO -->
+<!-- Solo visible cuando la categoría activa es "equipos-herramientas" Y hay multímetros cargados -->
 <button class="rec-trigger-btn" id="recTriggerBtn" style="display:none;" onclick="abrirRecomendador('multimetros')">
   <span class="rec-trigger-icon">🧭</span>
   ¿No sabes cuál multímetro elegir? Te ayudamos a encontrarlo
 </button>
 
-  <div class="grid" id="catalogo"></div>
+<div class="grid" id="catalogo"></div>
 
 <!-- MODAL DETALLE + COMPLEMENTARIOS -->
 <div class="modal-overlay" id="modalOverlay" onclick="cerrarModalSiFondo(event)">
@@ -486,11 +721,413 @@
   </div>
 </div>
 
-  <script src="recommendationEngine.js"></script>
-<script src="multimetros.config.js"></script>
-  
 <script>
+/* ============================================================
+   MOTOR DE RECOMENDACIÓN (antes recommendationEngine.js)
+   ============================================================
+   Genérico: no conoce nada específico de "multímetros".
+   Para agregar otra categoría, se crea otro bloque de config
+   (como el de MULTÍMETROS más abajo) y se llama a
+   registrarConfigRecomendador('clave', {...}).
+   ============================================================ */
+
+const RECOMMENDER_CONFIGS = {};
+
+function registrarConfigRecomendador(key, config) {
+  RECOMMENDER_CONFIGS[key] = config;
+}
+
+let _recState = {
+  configKey: null,
+  pasoActual: 0,
+  respuestas: {}
+};
+
+function _normalizar(str) {
+  return String(str || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function _normalizarLista(str) {
+  return String(str || '')
+    .split(',')
+    .map(s => _normalizar(s))
+    .filter(Boolean);
+}
+
+function abrirRecomendador(configKey) {
+  const config = RECOMMENDER_CONFIGS[configKey];
+  if (!config) {
+    console.error('No existe configuración de recomendador para:', configKey);
+    return;
+  }
+  _recState = { configKey, pasoActual: 0, respuestas: {} };
+  _construirShellRecomendador(config);
+  _renderPasoActual();
+  document.getElementById('recOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarRecomendador() {
+  const overlay = document.getElementById('recOverlay');
+  if (overlay) {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+function _cerrarRecomendadorSiFondo(e) {
+  if (e.target.id === 'recOverlay') cerrarRecomendador();
+}
+
+function _construirShellRecomendador(config) {
+  let overlay = document.getElementById('recOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'recOverlay';
+    overlay.className = 'rec-overlay';
+    overlay.onclick = _cerrarRecomendadorSiFondo;
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML = `
+    <div class="rec-box">
+      <div class="rec-header">
+        <div class="rec-header-text">
+          <div class="rec-eyebrow">${config.tituloAsesor || 'Asesor de productos'}</div>
+          <div class="rec-progress-label" id="recProgressLabel"></div>
+        </div>
+        <button class="rec-close" onclick="cerrarRecomendador()">✕</button>
+      </div>
+      <div class="rec-progress-track"><div class="rec-progress-fill" id="recProgressFill"></div></div>
+      <div class="rec-body" id="recBody"></div>
+    </div>
+  `;
+}
+
+function _renderPasoActual() {
+  const config = RECOMMENDER_CONFIGS[_recState.configKey];
+  const preguntas = config.preguntas;
+  const body = document.getElementById('recBody');
+  const progressLabel = document.getElementById('recProgressLabel');
+  const progressFill = document.getElementById('recProgressFill');
+
+  if (_recState.pasoActual >= preguntas.length) {
+    _renderResultados();
+    progressLabel.textContent = 'Tus recomendaciones';
+    progressFill.style.width = '100%';
+    return;
+  }
+
+  const pregunta = preguntas[_recState.pasoActual];
+  progressLabel.textContent = `Pregunta ${_recState.pasoActual + 1} de ${preguntas.length}`;
+  progressFill.style.width = `${(_recState.pasoActual / preguntas.length) * 100}%`;
+
+  const seleccionPrevia = _recState.respuestas[pregunta.id];
+  const esMultiple = pregunta.tipo === 'multiple';
+
+  const opcionesHTML = pregunta.opciones.map(op => {
+    const activa = esMultiple
+      ? Array.isArray(seleccionPrevia) && seleccionPrevia.includes(op.valor)
+      : seleccionPrevia === op.valor;
+    return `
+      <button type="button"
+        class="rec-option ${activa ? 'rec-option-active' : ''}"
+        data-valor="${op.valor}"
+        onclick="_seleccionarOpcion('${pregunta.id}', '${op.valor}', ${esMultiple})">
+        ${op.icono ? `<span class="rec-option-icon">${op.icono}</span>` : ''}
+        <span class="rec-option-text">${op.texto}</span>
+      </button>
+    `;
+  }).join('');
+
+  body.innerHTML = `
+    <h3 class="rec-question">${pregunta.texto}</h3>
+    ${pregunta.subtexto ? `<p class="rec-subtext">${pregunta.subtexto}</p>` : ''}
+    <div class="rec-options ${esMultiple ? 'rec-options-multi' : ''}">${opcionesHTML}</div>
+    <div class="rec-nav">
+      ${_recState.pasoActual > 0 ? `<button type="button" class="rec-btn rec-btn-back" onclick="_pasoAnterior()">← Atrás</button>` : '<span></span>'}
+      ${esMultiple ? `<button type="button" class="rec-btn rec-btn-next" onclick="_pasoSiguiente()">Continuar →</button>` : ''}
+    </div>
+  `;
+}
+
+function _seleccionarOpcion(idPregunta, valor, esMultiple) {
+  if (esMultiple) {
+    const actual = _recState.respuestas[idPregunta] || [];
+    const idx = actual.indexOf(valor);
+    if (idx >= 0) actual.splice(idx, 1); else actual.push(valor);
+    _recState.respuestas[idPregunta] = actual;
+    _renderPasoActual();
+  } else {
+    _recState.respuestas[idPregunta] = valor;
+    _pasoSiguiente();
+  }
+}
+
+function _pasoSiguiente() {
+  _recState.pasoActual++;
+  _renderPasoActual();
+}
+
+function _pasoAnterior() {
+  _recState.pasoActual--;
+  _renderPasoActual();
+}
+
+function _renderResultados() {
+  const config = RECOMMENDER_CONFIGS[_recState.configKey];
+  const candidatos = productosTotales.filter(config.filtroProductos);
+
+  const puntuados = candidatos.map(producto => {
+    const puntaje = config.calcularPuntaje(producto, _recState.respuestas, { _normalizar, _normalizarLista, getVal });
+    return { producto, puntaje };
+  });
+
+  puntuados.sort((a, b) => {
+    const agotadoA = getVal(a.producto, 'estado').toLowerCase() === 'agotado' ? 1 : 0;
+    const agotadoB = getVal(b.producto, 'estado').toLowerCase() === 'agotado' ? 1 : 0;
+    if (agotadoA !== agotadoB) return agotadoA - agotadoB;
+    return b.puntaje - a.puntaje;
+  });
+
+  const top = puntuados.slice(0, config.maxResultados || 6);
+  const body = document.getElementById('recBody');
+
+  if (top.length === 0) {
+    body.innerHTML = `
+      <div class="rec-empty">
+        <p>No encontramos una coincidencia exacta, pero acá tienes nuestras opciones disponibles.</p>
+      </div>
+      <div class="rec-nav"><button type="button" class="rec-btn rec-btn-restart" onclick="abrirRecomendador('${_recState.configKey}')">Volver a empezar</button></div>
+    `;
+    return;
+  }
+
+  const cardsHTML = top.map(({ producto, puntaje }) => _renderTarjetaResultado(producto, puntaje)).join('');
+
+  body.innerHTML = `
+    <p class="rec-result-intro">${config.textoResultados || 'Estas son las opciones que mejor se ajustan a lo que buscas:'}</p>
+    <div class="rec-results-grid">${cardsHTML}</div>
+    <div class="rec-nav">
+      <button type="button" class="rec-btn rec-btn-restart" onclick="abrirRecomendador('${_recState.configKey}')">Volver a empezar</button>
+      <button type="button" class="rec-btn rec-btn-next" onclick="cerrarRecomendador()">Listo</button>
+    </div>
+  `;
+}
+
+function _renderTarjetaResultado(producto, puntaje) {
+  const nombre = getVal(producto, 'nombre');
+  const imagen = getVal(producto, 'imagen');
+  const codigo = getVal(producto, 'codigo');
+  const estado = getVal(producto, 'estado').toLowerCase();
+  const disponible = estado !== 'agotado';
+  const compatibilidad = Math.max(0, Math.min(100, Math.round(puntaje)));
+
+  return `
+    <div class="rec-card" onclick="cerrarRecomendador(); setTimeout(() => abrirModal('${codigo}'), 200);">
+      <div class="rec-card-match">${compatibilidad}% afinidad</div>
+      <div class="rec-card-img-wrap">
+        ${!disponible ? '<span class="badge badge-agotado">Agotado</span>' : ''}
+        <img src="${imagen}" class="${!disponible ? 'agotado-img' : ''}" onerror="this.src='https://placehold.co/300x300?text=Sin+Foto'">
+      </div>
+      <div class="rec-card-body">
+        <div class="rec-card-ref">REF: ${codigo}</div>
+        <div class="rec-card-title">${nombre}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   CONFIG: MULTÍMETROS (antes multimetros.config.js)
+   ============================================================
+   Taxonomía del Sheet (categoria=equipos-herramientas, subcategoria=multimetro):
+
+   tipo_multimetro   -> un solo valor: Analogo | Digital Basico |
+                        Digital Semiprofesional | Digital Profesional
+   uso_recomendado   -> uno o varios separados por coma: Electronica,
+                        Reparaciones, Uso_Domestico, Vehiculos
+   Caracteristicas    -> uno o varios separados por coma: Auto_Range,
+                        Continuidad, Capacidad, True_RMS, Retroiluminacion
+
+   Regla de datos faltantes: si una columna viene vacía en un producto,
+   ese producto NO recibe puntos de esa categoría.
+   ============================================================ */
+
+(function () {
+
+  const ESCALA_TIPO = ['analogo', 'digital basico', 'digital semiprofesional', 'digital profesional'];
+
+  function _puntajePorCercaniaTipo(valorProducto, valorPedido) {
+    const idxProducto = ESCALA_TIPO.indexOf(valorProducto);
+    const idxPedido = ESCALA_TIPO.indexOf(valorPedido);
+    if (idxProducto === -1 || idxPedido === -1) return 0;
+    const distancia = Math.abs(idxProducto - idxPedido);
+    const tabla = [25, 14, 5, 0];
+    return tabla[distancia] ?? 0;
+  }
+
+  const PREGUNTAS = [
+    {
+      id: 'tipoUsuario',
+      tipo: 'unica',
+      texto: '¿Cuál te describe mejor?',
+      subtexto: 'Así ajustamos el nivel de las recomendaciones.',
+      opciones: [
+        { valor: 'estudiante', texto: 'Estudiante', icono: '🎓' },
+        { valor: 'aficionado', texto: 'Aficionado / DIY en casa', icono: '🛠️' },
+        { valor: 'tecnico', texto: 'Técnico', icono: '🔧' },
+        { valor: 'profesional', texto: 'Profesional', icono: '⚙️' }
+      ]
+    },
+    {
+      id: 'usoPrincipal',
+      tipo: 'unica',
+      texto: '¿Para qué lo vas a usar principalmente?',
+      opciones: [
+        { valor: 'electronica', texto: 'Electrónica (Arduino, placas, componentes)', icono: '🔌' },
+        { valor: 'reparaciones', texto: 'Reparaciones (electrodomésticos, equipos)', icono: '🧰' },
+        { valor: 'uso_domestico', texto: 'Uso doméstico (instalaciones de casa u oficina)', icono: '🏠' },
+        { valor: 'vehiculos', texto: 'Vehículos (automotriz)', icono: '🚗' }
+      ]
+    },
+    {
+      id: 'frecuenciaUso',
+      tipo: 'unica',
+      texto: '¿Con qué frecuencia lo usarías?',
+      opciones: [
+        { valor: 'ocasional', texto: 'Ocasionalmente', icono: '🕓' },
+        { valor: 'mensual', texto: 'Varias veces al mes', icono: '📅' },
+        { valor: 'diario', texto: 'A diario', icono: '☀️' }
+      ]
+    },
+    {
+      id: 'precision',
+      tipo: 'unica',
+      texto: '¿Qué tan precisas necesitas que sean tus mediciones?',
+      opciones: [
+        { valor: 'analogo', texto: 'Básico, solo necesito saber si hay corriente o continuidad' },
+        { valor: 'digital basico', texto: 'Uso general, mediciones simples de voltaje y corriente' },
+        { valor: 'digital semiprofesional', texto: 'Buena precisión y algunas funciones extra' },
+        { valor: 'digital profesional', texto: 'Máxima precisión, mediciones críticas o profesionales' }
+      ]
+    },
+    {
+      id: 'funcionesDeseadas',
+      tipo: 'multiple',
+      texto: '¿Qué funciones te gustaría que tenga?',
+      subtexto: 'Puedes elegir varias, o ninguna si no estás seguro.',
+      opciones: [
+        { valor: 'auto_range', texto: 'Auto Range (rango automático)' },
+        { valor: 'continuidad', texto: 'Medición de continuidad' },
+        { valor: 'capacidad', texto: 'Medición de capacidad' },
+        { valor: 'true_rms', texto: 'True RMS' },
+        { valor: 'retroiluminacion', texto: 'Pantalla con retroiluminación' }
+      ]
+    },
+    {
+      id: 'tipoProyecto',
+      tipo: 'unica',
+      texto: '¿En qué tipo de proyecto lo usarás más?',
+      opciones: [
+        { valor: 'electronica', texto: 'Proyectos electrónicos (Arduino, placas)', icono: '🔌' },
+        { valor: 'reparaciones', texto: 'Reparación de electrodomésticos', icono: '🧰' },
+        { valor: 'uso_domestico', texto: 'Instalaciones eléctricas en casa u oficina', icono: '🏠' },
+        { valor: 'vehiculos', texto: 'Trabajo de campo o vehículos', icono: '🚗' }
+      ]
+    }
+  ];
+
+  function calcularPuntaje(producto, respuestas, utils) {
+    const { _normalizar, _normalizarLista, getVal } = utils;
+    let puntaje = 0;
+
+    const tipoMultimetroProd = _normalizar(getVal(producto, 'tipo_multimetro'));
+    if (tipoMultimetroProd && respuestas.tipoUsuario) {
+      const favoreceBasico = ['estudiante', 'aficionado'].includes(respuestas.tipoUsuario);
+      const esGamaAlta = ['digital semiprofesional', 'digital profesional'].includes(tipoMultimetroProd);
+      const esGamaBasica = ['analogo', 'digital basico'].includes(tipoMultimetroProd);
+      if (favoreceBasico && esGamaBasica) puntaje += 15;
+      else if (!favoreceBasico && esGamaAlta) puntaje += 15;
+      else puntaje += 6;
+    }
+
+    const usosProd = _normalizarLista(getVal(producto, 'uso_recomendado'));
+    if (usosProd.length > 0 && respuestas.usoPrincipal) {
+      if (usosProd.includes(_normalizar(respuestas.usoPrincipal))) {
+        puntaje += 25;
+      }
+    }
+
+    if (tipoMultimetroProd && respuestas.frecuenciaUso) {
+      if (respuestas.frecuenciaUso === 'ocasional') {
+        puntaje += 10;
+      } else if (respuestas.frecuenciaUso === 'mensual') {
+        puntaje += ['digital basico', 'digital semiprofesional', 'digital profesional'].includes(tipoMultimetroProd) ? 10 : 4;
+      } else if (respuestas.frecuenciaUso === 'diario') {
+        puntaje += ['digital semiprofesional', 'digital profesional'].includes(tipoMultimetroProd) ? 10 : 3;
+      }
+    }
+
+    if (tipoMultimetroProd && respuestas.precision) {
+      puntaje += _puntajePorCercaniaTipo(tipoMultimetroProd, respuestas.precision);
+    }
+
+    const caracteristicasProd = _normalizarLista(getVal(producto, 'caracteristicas') || getVal(producto, 'Caracteristicas'));
+    const funcionesElegidas = respuestas.funcionesDeseadas || [];
+    if (caracteristicasProd.length > 0 && funcionesElegidas.length > 0) {
+      const puntosPorFuncion = 15 / funcionesElegidas.length;
+      funcionesElegidas.forEach(f => {
+        if (caracteristicasProd.includes(_normalizar(f))) {
+          puntaje += puntosPorFuncion;
+        }
+      });
+    }
+
+    if (usosProd.length > 0 && respuestas.tipoProyecto) {
+      if (usosProd.includes(_normalizar(respuestas.tipoProyecto))) {
+        puntaje += 10;
+      }
+    }
+
+    return puntaje;
+  }
+
+  function filtroProductos(p) {
+    const categoria = _normalizar(getVal(p, 'categoria'));
+    const subcategoria = _normalizar(getVal(p, 'subcategoria'));
+    const inventario = getVal(p, 'inventario');
+    const estado = _normalizar(getVal(p, 'estado'));
+    const enStock = parseInt(inventario) > 0 || estado === 'agotado';
+    return categoria === 'equipos-herramientas' && subcategoria === 'multimetro' && enStock;
+  }
+
+  registrarConfigRecomendador('multimetros', {
+    tituloAsesor: 'Asesor de multímetros',
+    textoResultados: 'Según lo que nos contaste, estos son los multímetros que mejor se ajustan a lo que necesitas:',
+    preguntas: PREGUNTAS,
+    filtroProductos: filtroProductos,
+    calcularPuntaje: calcularPuntaje,
+    maxResultados: 6
+  });
+
+})();
+
+/* ============================================================
+   LÓGICA PRINCIPAL DEL CATÁLOGO (tu script original)
+   ============================================================ */
+
+// URL de la Hoja 1 (productos generales) — la que ya tenías
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9QD0qdhIfzYUJymEjvB4Q9OO3BFDYqWZpiZMVssAE4nQQYJJZ7Y6Isc_brmSUqqH9CFYlxwxHlGzq/pub?gid=0&single=true&output=csv";
+
+// URL de la Hoja 2 (multímetros) — AGREGADO
+// Misma URL de publicación que arriba, cambiando SOLO el valor de "gid" por el de tu Hoja 2.
+// Cómo obtenerlo: abre la Hoja 2 en Google Sheets y mira la URL del navegador,
+// vas a ver algo como "...#gid=987654321" al final. Reemplaza el placeholder de abajo con ese número.
+const sheetURLMultimetros = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9QD0qdhIfzYUJymEjvB4Q9OO3BFDYqWZpiZMVssAE4nQQYJJZ7Y6Isc_brmSUqqH9CFYlxwxHlGzq/pub?gid=AQUI_VA_EL_GID_DE_HOJA2&single=true&output=csv";
+
 let productosTotales = [];
 let categoriaActual = 'todos';
 
@@ -688,22 +1325,12 @@ function cerrarModalSiFondo(e) {
 
 function filtrarCategoria(cat) {
   categoriaActual = cat;
-  
   document.querySelectorAll('.category-btn').forEach(btn => {
     btn.classList.remove('active');
     if(btn.getAttribute('onclick').includes(`'${cat}'`)) btn.classList.add('active');
   });
   aplicarFiltros();
-   _actualizarVisibilidadBotonRecomendador();
-}
-
-  function _actualizarVisibilidadBotonRecomendador() {
-  const btn = document.getElementById('recTriggerBtn');
-  if (!btn) return;
-  // Se muestra cuando hay multímetros visibles en la categoría activa
-  const hayMultimetros = categoriaActual === 'equipos-herramientas' &&
-    productosTotales.some(p => getVal(p, 'subcategoria').toLowerCase() === 'multimetro');
-  btn.style.display = hayMultimetros ? '' : 'none';
+  _actualizarVisibilidadBotonRecomendador(); // AGREGADO
 }
 
 function aplicarFiltros() {
@@ -719,14 +1346,37 @@ function aplicarFiltros() {
   mostrarProductos(filtrados);
 }
 
-Papa.parse(sheetURL, {
-  download: true,
-  header: true,
-  complete: (results) => {
-    productosTotales = results.data;
-    mostrarProductos(productosTotales);
-    _actualizarVisibilidadBotonRecomendador();
-  }
+// AGREGADO — muestra/oculta el botón del asesor de multímetros según la categoría activa
+function _actualizarVisibilidadBotonRecomendador() {
+  const btn = document.getElementById('recTriggerBtn');
+  if (!btn) return;
+  const hayMultimetros = categoriaActual === 'equipos-herramientas' &&
+    productosTotales.some(p => getVal(p, 'subcategoria').toLowerCase() === 'multimetro');
+  btn.style.display = hayMultimetros ? '' : 'none';
+}
+
+// AGREGADO — helper para parsear un CSV de Google Sheets devolviendo una Promise
+function _parsearCSV(url) {
+  return new Promise((resolve) => {
+    Papa.parse(url, {
+      download: true,
+      header: true,
+      complete: (results) => resolve(results.data),
+      error: () => resolve([]) // si falla esa hoja, no rompe el resto del catálogo
+    });
+  });
+}
+
+// MODIFICADO — antes era un solo Papa.parse(sheetURL, {...}).
+// Ahora se cargan ambas hojas en paralelo y se combinan en productosTotales.
+Promise.all([
+  _parsearCSV(sheetURL),
+  _parsearCSV(sheetURLMultimetros)
+]).then(([productosGenerales, productosMultimetros]) => {
+  const limpiar = (arr) => arr.filter(p => getVal(p, 'nombre') !== '');
+  productosTotales = [...limpiar(productosGenerales), ...limpiar(productosMultimetros)];
+  mostrarProductos(productosTotales);
+  _actualizarVisibilidadBotonRecomendador(); // AGREGADO
 });
 
 document.getElementById('buscador').addEventListener('input', aplicarFiltros);
@@ -734,4 +1384,3 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarModa
 </script>
 </body>
 </html>
-
