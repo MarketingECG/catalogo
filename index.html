@@ -428,6 +428,7 @@
       font-family: var(--font-mono);
       color: var(--muted);
     }
+    estilos-recomendador.css
   </style>
 </head>
 <body>
@@ -449,8 +450,13 @@
     <input type="text" id="buscador" placeholder="¿Qué buscas hoy?">
   </div>
 </div>
+  
+<button class="rec-trigger-btn" id="recTriggerBtn" style="display:none;" onclick="abrirRecomendador('multimetros')">
+  <span class="rec-trigger-icon">🧭</span>
+  ¿No sabes cuál multímetro elegir? Te ayudamos a encontrarlo
+</button>
 
-<div class="grid" id="catalogo"></div>
+  <div class="grid" id="catalogo"></div>
 
 <!-- MODAL DETALLE + COMPLEMENTARIOS -->
 <div class="modal-overlay" id="modalOverlay" onclick="cerrarModalSiFondo(event)">
@@ -480,6 +486,9 @@
   </div>
 </div>
 
+  <script src="recommendationEngine.js"></script>
+<script src="multimetros.config.js"></script>
+  
 <script>
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9QD0qdhIfzYUJymEjvB4Q9OO3BFDYqWZpiZMVssAE4nQQYJJZ7Y6Isc_brmSUqqH9CFYlxwxHlGzq/pub?gid=0&single=true&output=csv";
 let productosTotales = [];
@@ -679,11 +688,22 @@ function cerrarModalSiFondo(e) {
 
 function filtrarCategoria(cat) {
   categoriaActual = cat;
+  
   document.querySelectorAll('.category-btn').forEach(btn => {
     btn.classList.remove('active');
     if(btn.getAttribute('onclick').includes(`'${cat}'`)) btn.classList.add('active');
   });
   aplicarFiltros();
+   _actualizarVisibilidadBotonRecomendador();
+}
+
+  function _actualizarVisibilidadBotonRecomendador() {
+  const btn = document.getElementById('recTriggerBtn');
+  if (!btn) return;
+  // Se muestra cuando hay multímetros visibles en la categoría activa
+  const hayMultimetros = categoriaActual === 'equipos-herramientas' &&
+    productosTotales.some(p => getVal(p, 'subcategoria').toLowerCase() === 'multimetro');
+  btn.style.display = hayMultimetros ? '' : 'none';
 }
 
 function aplicarFiltros() {
@@ -705,6 +725,7 @@ Papa.parse(sheetURL, {
   complete: (results) => {
     productosTotales = results.data;
     mostrarProductos(productosTotales);
+    _actualizarVisibilidadBotonRecomendador();
   }
 });
 
